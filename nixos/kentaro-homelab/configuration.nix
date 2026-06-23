@@ -134,6 +134,8 @@
     enable = true;
     allowedTCPPorts = [
       22 # SSH
+      80 # HTTP
+      8080 #Alt HTTP
     ];
     allowedUDPPorts = [
       49920 # WireGuard
