@@ -24,6 +24,11 @@
       kentaro-password = {
         neededForUsers = true;
       };
+      wireguard-privatekey = {
+        owner = "systemd-network";
+        group = "systemd-network";
+        mode = "0640";
+      };
     };
   };
 
@@ -113,8 +118,70 @@
   };
 
   # Network
-  networking.hostName = "kentaro-homelab";
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = "kentaro-homelab";
+    nat = {
+      enable = true;
+      enableIPv6 = true;
+      externalInterface = "enp51s0";
+      internalInterfaces = ["wg0"];
+    };
+    useNetworkd = true; # for WireGuard
+  };
+  systemd.network.enable = true;
+  # Firewall
+  networking.firewall = {
+    enable = true;
+    allowedTCPPorts = [
+      22 # SSH
+    ];
+    allowedUDPPorts = [
+      49920 # WireGuard
+    ];
+  };
+  # WireGuard
+  systemd.network = {
+    networks."50-wg0" = {
+      matchConfig.Name = "wg0";
+      networkConfig = {
+        IPv4Forwarding = true;
+        IPv6Forwarding = true;
+      };
+      address = [
+        "172.17.61.1/24"
+        "fd2f:6ed0:a9ae::1/64"
+      ];
+    };
+    netdevs."50-wg0" = {
+      netdevConfig = {
+        Kind = "wireguard";
+        Name = "wg0";
+        MTUBytes = "1360";
+      };
+
+      wireguardConfig = {
+        ListenPort = 49920;
+        PrivateKeyFile = config.sops.secrets.wireguard-privatekey.path;
+        # To automatically create routes for everything in AllowedIPs,
+        # add RouteTable=main
+        RouteTable = "main";
+        # FirewallMark marks all packets send and received by wg0
+        # with the number 42, which can be used to define policy rules on these packets.
+        FirewallMark = 42;
+      };
+
+      wireguardPeers = [
+        {
+          # iPhone
+          PublicKey = "vcASWXo+S5Q1id1EE6YsBaZmXEM9vl0/PteUKsLZnkk=";
+          AllowedIPs = [
+            "172.17.61.3/32"
+            "fd2f:6ed0:a9ae::3/128"
+          ];
+        }
+      ];
+    };
+  };
 
   # Internationalisation
   i18n.defaultLocale = "ja_JP.UTF-8";
@@ -154,12 +221,6 @@
 
   # OpenSSH
   services.openssh.enable = true;
-
-  # Firewall
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  networking.firewall.enable = false;
 
   # DO NOT MODIFY
   system.stateVersion = "25.11";
