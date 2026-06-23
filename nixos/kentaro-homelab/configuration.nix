@@ -172,6 +172,14 @@
 
       wireguardPeers = [
         {
+          # macbook
+          PublicKey = "3v0K8zREG4AgTYd5Y++takUTqwofJtZ9gEt2BAiGWTM=";
+          AllowedIPs = [
+            "172.17.61.2/32"
+            "fd2f:6ed0:a9ae::2/128"
+          ];
+        }
+        {
           # iPhone
           PublicKey = "YAyVFFwJhT3duczGYuruc4xJSMYLGEK3ApxgOwldJww=";
           AllowedIPs = [
