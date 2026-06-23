@@ -4,9 +4,19 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     deploy-rs.url = "github:serokell/deploy-rs";
-
+    impermanence = {
+      url = "github:nix-community/impermanence";
+      inputs = {
+        nixpkgs.follows = "";
+        home-manager.follows = "";
+      };
+    };
     sops-nix = {
       url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    disko = {
+      url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -16,6 +26,8 @@
     nixpkgs,
     deploy-rs,
     sops-nix,
+    impermanence,
+    disko,
     ...
   } @ inputs: let
     systems = [
@@ -44,6 +56,8 @@
         modules = [
           ./nixos/kentaro-homelab/configuration.nix
           sops-nix.nixosModules.sops
+          impermanence.nixosModules.impermanence
+          disko.nixosModules.disko
         ];
       };
     };

@@ -28,3 +28,11 @@ nvme0n1     259:0    0 476.9G  0 disk
                                       /mnt/nix
                                       /mnt
 ```
+
+## インストール
+
+### テスト
+
+```log
+λ nix run github:nix-community/nixos-anywhere -- --flake .#kentaro-homelab --vm-test
+```
