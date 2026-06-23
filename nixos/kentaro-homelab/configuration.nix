@@ -10,11 +10,17 @@
 
   # Sops Decryption
   sops = {
-    defaultSopsFile = ../secrets/kentaro-homelab.enc.yaml;
+    defaultSopsFile = ../../secrets/kentaro-homelab.enc.yaml;
     age = {
       sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
       keyFile = "/var/lib/sops-nix/key.txt";
       generateKey = true;
+    };
+
+    secrets = {
+      kentaro-password = {
+        neededForUsers = true;
+      };
     };
   };
 
@@ -40,11 +46,14 @@
   services.pulseaudio.enable = true;
 
   # User
-  users.users.kentaro = {
-    isNormalUser = true;
-    extraGroups = ["wheel"];
-    createHome = true;
-    password = "passw0rd";
+  users = {
+    mutableUsers = false; # パスワードを上書きできるように
+    users.kentaro = {
+      isNormalUser = true;
+      extraGroups = ["wheel"];
+      createHome = true;
+      hashedPasswordFile = config.sops.secrets.kentaro-password.path;
+    };
   };
   # Sudo
   security.sudo = {
