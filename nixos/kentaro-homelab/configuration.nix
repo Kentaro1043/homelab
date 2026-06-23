@@ -14,7 +14,8 @@
   sops = {
     defaultSopsFile = ../../secrets/kentaro-homelab.enc.yaml;
     age = {
-      sshKeyPaths = ["/etc/ssh/ssh_host_ed25519_key"];
+      # Impermanenceのバインドマウント完了を待たずに直接実体から読み込ませるため、/persistent のパスを指定
+      sshKeyPaths = ["/persistent/etc/ssh/ssh_host_ed25519_key"];
       keyFile = "/var/lib/sops-nix/key.txt";
       generateKey = true;
     };
