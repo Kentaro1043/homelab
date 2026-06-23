@@ -4,12 +4,18 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     deploy-rs.url = "github:serokell/deploy-rs";
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     deploy-rs,
+    sops-nix,
     ...
   } @ inputs: let
     systems = [
@@ -37,6 +43,7 @@
         specialArgs = {inherit inputs;};
         modules = [
           ./nixos/kentaro-homelab/configuration.nix
+          sops-nix.nixosModules.sops
         ];
       };
     };
