@@ -36,3 +36,22 @@ nvme0n1     259:0    0 476.9G  0 disk
 ```log
 λ nix run github:nix-community/nixos-anywhere -- --flake .#kentaro-homelab --vm-test
 ```
+
+### 実行
+
+ホストキーをsopsの復号化鍵にする必要がある
+
+```log
+λ mkdir -p /tmp/nixos-install-keys/persistent/etc/ssh
+λ ssh-keygen -t ed25519 -N "" -C "kentaro-homelab" -f /tmp/nixos-install-keys/persistent/etc/ssh/ssh_host_ed25519_key
+λ ssh-keygen -t rsa -b 4096 -N "" -C "kentaro-homelab" -f /tmp/nixos-install-keys/persistent/etc/ssh/ssh_host_rsa_key
+λ chmod 755 /tmp/nixos-install-keys/persistent
+λ chmod 755 /tmp/nixos-install-keys/persistent/etc
+λ chmod 755 /tmp/nixos-install-keys/persistent/etc/ssh
+λ chmod 600 /tmp/nixos-install-keys/persistent/etc/ssh/ssh_host_*_key
+λ nix-shell -p ssh-to-age --run 'cat /tmp/nixos-install-keys/persistent/etc/ssh/ssh_host_ed25519_key.pub | ssh-to-age' # .sops.yamlに追加
+λ nix run github:nix-community/nixos-anywhere -- \
+    --extra-files /tmp/nixos-install-keys \
+    --flake .#kentaro-homelab \
+    nixos@192.168.1.3
+```

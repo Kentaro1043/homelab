@@ -4,7 +4,7 @@
 # for a more complex example.
 keys:
   - &admin_kentaro age16uagmx40mgwq3cgpqc5h78fgxypd5yngqltnqc2fk0j5q9alry6qp3dt25
-  - &server_homelab age1ddcgheuszesh6kg3hk5kqy8k923syv6vre4c77ghqr2vyaagpg9ss2wrzf
+  - &server_homelab age1he8k8ksks72wkc6aa93emst78c7xw9fd5n7s3zzx02rrctwtw3dsxsa92e
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
