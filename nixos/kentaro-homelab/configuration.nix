@@ -173,7 +173,7 @@
       wireguardPeers = [
         {
           # iPhone
-          PublicKey = "vcASWXo+S5Q1id1EE6YsBaZmXEM9vl0/PteUKsLZnkk=";
+          PublicKey = "YAyVFFwJhT3duczGYuruc4xJSMYLGEK3ApxgOwldJww=";
           AllowedIPs = [
             "172.17.61.3/32"
             "fd2f:6ed0:a9ae::3/128"
