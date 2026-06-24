@@ -20,5 +20,5 @@ spec:
       copy:
         - from: "@monorepo/k8s/apps/base/**"
           to: "@artifact/base/"
-        - from: "@monorepo/k8s/apps/production/**"
-          to: "@artifact/production/"
+        - from: "@monorepo/k8s/apps/homelab/**"
+          to: "@artifact/homelab/"
