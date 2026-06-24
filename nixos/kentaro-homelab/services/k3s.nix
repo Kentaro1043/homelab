@@ -4,10 +4,10 @@
     role = "server";
     tokenFile = config.sops.secrets.k3s-token.path;
     extraFlags = [
-      "--write-kubeconfig-mode 644" # 一般ユーザーがkubectlできるようにする
+      "--write-kubeconfig-mode=644" # 一般ユーザーがkubectlできるようにする
       "--flannel-backend=host-gw"
       "--flannel-iface=wg0"
-      "--write-kubeconfig-mode=644"
+      "--tls-san=192.168.1.3" # ローカルIPからのアクセスを許可
     ];
     disable = [
       "traefik"
