@@ -69,16 +69,9 @@ spec:
               value: /home/node/.openclaw
             - name: NODE_ENV
               value: production
-            - name: OPENCLAW_GATEWAY_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: openclaw-secrets
-                  key: OPENCLAW_GATEWAY_TOKEN
-            - name: GEMINI_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: openclaw-secrets
-                  key: GEMINI_API_KEY
+          envFrom:
+            - secretRef:
+                name: openclaw-secrets
           resources:
             requests:
               memory: 512Mi
