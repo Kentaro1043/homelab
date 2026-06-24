@@ -22,7 +22,10 @@ data:
       },
       "agents": {
         "defaults": {
-          "workspace": "~/.openclaw/workspace"
+          "workspace": "~/.openclaw/workspace",
+          "model": {
+            "primary": "google/gemma-4-31b-it"
+          }
         },
         "list": [
           {
