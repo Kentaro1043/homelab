@@ -65,7 +65,8 @@ nvme0n1     259:0    0 476.9G  0 disk
   --repository=homelab \
   --branch=main \
   --path=k8s/clusters/homelab \
-  --personal
+  --personal \
+  --components-extra source-watcher
 ```
 
 ### sops-age
