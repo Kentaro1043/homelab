@@ -55,3 +55,15 @@ nvme0n1     259:0    0 476.9G  0 disk
     --flake .#kentaro-homelab \
     nixos@192.168.1.3
 ```
+
+## Flux CD セットアップ
+
+```log
+λ flux bootstrap github \
+  --token-auth \
+  --owner=Kentaro1043 \
+  --repository=homelab \
+  --branch=main \
+  --path=k8s/clusters/homelab \
+  --personal
+```
