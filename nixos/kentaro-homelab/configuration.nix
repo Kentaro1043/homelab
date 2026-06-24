@@ -8,6 +8,7 @@
   imports = [
     ./hardware-configuration.nix
     ./disk-config.nix
+    ./services
   ];
 
   # Sops Decryption
@@ -29,6 +30,7 @@
         group = "systemd-network";
         mode = "0640";
       };
+      k3s-token = {};
     };
   };
 
@@ -99,6 +101,10 @@
       "/var/lib/nixos"
       "/var/lib/systemd/coredump"
       "/etc/NetworkManager/system-connections"
+
+      # k3s
+      "/var/lib/rancher/k3s"
+      "/etc/rancher/k3s"
     ];
     files = [
       "/etc/machine-id"
@@ -136,6 +142,7 @@
       22 # SSH
       80 # HTTP
       8080 #Alt HTTP
+      6443 # k3s
     ];
     allowedUDPPorts = [
       49920 # WireGuard
