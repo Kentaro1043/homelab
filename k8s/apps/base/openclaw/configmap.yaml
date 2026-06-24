@@ -17,7 +17,10 @@ data:
           "mode": "token"
         },
         "controlUi": {
-          "enabled": true
+          "enabled": true,
+          "allowedOrigins": [
+            "https://claw.kentaro1043.com"
+          ]
         }
       },
       "agents": {
