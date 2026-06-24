@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: openclaw
+  labels:
+    app.kubernetes.io/name: openclaw
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: claw.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: openclaw
+                port:
+                  number: 18789
