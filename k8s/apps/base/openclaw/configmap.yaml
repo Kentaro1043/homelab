@@ -35,7 +35,13 @@ data:
           }
         ]
       },
-      "cron": { "enabled": false }
+      "cron": { "enabled": false },
+      "channels": {
+        "discord": {
+          "enabled": true,
+          "token": "${DISCORD_BOT_TOKEN}"
+        }
+      }
     }
   AGENTS.md: |
     # OpenClaw Assistant
