@@ -45,6 +45,7 @@
     in {
       default = pkgs.mkShell {
         packages = [
+          pkgs.fluxcd
           deploy-rs.packages.${system}.deploy-rs
         ];
       };
