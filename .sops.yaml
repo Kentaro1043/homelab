@@ -6,6 +6,11 @@ keys:
   - &admin_kentaro age16uagmx40mgwq3cgpqc5h78fgxypd5yngqltnqc2fk0j5q9alry6qp3dt25
   - &server_homelab age1he8k8ksks72wkc6aa93emst78c7xw9fd5n7s3zzx02rrctwtw3dsxsa92e
 creation_rules:
+  - path_regex: k8s/.*/secrets/[^/]+\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    key_groups:
+      - age:
+          - *admin_kentaro
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:

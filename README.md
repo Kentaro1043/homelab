@@ -67,3 +67,12 @@ nvme0n1     259:0    0 476.9G  0 disk
   --path=k8s/clusters/homelab \
   --personal
 ```
+
+### sops-age
+
+```log
+λ cat keys.txt | kubectl create secret generic sops-age \
+  --namespace=flux-system \
+  --from-file=age.agekey=/dev/stdin
+secret/sops-age created
+```
