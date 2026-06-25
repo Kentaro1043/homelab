@@ -75,6 +75,8 @@ spec:
               value: /home/node
             - name: OPENCLAW_CONFIG_DIR
               value: /home/node/.openclaw
+            - name: CODEX_HOME
+              value: /home/node/.openclaw/agents/default/agent/codex-home
             - name: NODE_ENV
               value: production
           envFrom:
