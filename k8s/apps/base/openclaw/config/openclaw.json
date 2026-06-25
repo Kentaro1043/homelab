@@ -55,6 +55,9 @@
     "entries": {
       "codex": {
         "enabled": true
+      },
+      "discord": {
+        "enabled": true
       }
     }
   }
