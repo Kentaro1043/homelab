@@ -26,5 +26,6 @@
   systemd.tmpfiles.rules = [
     "d /srv/nfs 0755 root root -"
     "d /srv/nfs/kubernetes 0777 root root -"
+    "z /srv/nfs/kubernetes 0777 root root -"
   ];
 }
