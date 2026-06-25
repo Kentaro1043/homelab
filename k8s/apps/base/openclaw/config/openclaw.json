@@ -47,7 +47,13 @@
       "enabled": true,
       "token": "${DISCORD_BOT_TOKEN}",
       "groupPolicy": "allowlist",
-      "dmPolicy": "pairing",
+      "guilds": {
+        "1366927360435425371": {
+          "requireMention": true,
+          "users": ["766615423453364234"]
+        }
+      },
+      "dmPolicy": "allowlist",
       "allowFrom": ["766615423453364234"]
     }
   },
