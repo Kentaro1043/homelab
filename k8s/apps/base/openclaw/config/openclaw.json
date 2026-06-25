@@ -41,7 +41,7 @@
       }
     ]
   },
-  "cron": { "enabled": false },
+  "cron": { "enabled": true },
   "channels": {
     "discord": {
       "enabled": true,
