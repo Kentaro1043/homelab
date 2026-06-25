@@ -45,7 +45,10 @@
   "channels": {
     "discord": {
       "enabled": true,
-      "token": "${DISCORD_BOT_TOKEN}"
+      "token": "${DISCORD_BOT_TOKEN}",
+      "groupPolicy": "allowlist",
+      "dmPolicy": "pairing",
+      "allowFrom": ["766615423453364234"]
     }
   },
   "plugins": {
