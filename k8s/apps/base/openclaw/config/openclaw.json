@@ -16,19 +16,25 @@
       "workspace": "~/.openclaw/workspace",
       "model": {
         "primary": "openai/gpt-5.5"
-      },
-      "google": {
-        "workspace": "~/.openclaw/workspace",
-        "model": {
-          "primary": "google/gemma-4-31b-it"
-        }
       }
     },
     "list": [
       {
         "id": "default",
-        "name": "OpenClaw Assistant",
+        "identity": {
+          "name": "OpenClaw by GPT-5.5"
+        },
         "workspace": "~/.openclaw/workspace"
+      },
+      {
+        "id": "google",
+        "identity": {
+          "name": "OpenClaw by Gemma 4"
+        },
+        "workspace": "~/.openclaw/workspace",
+        "model": {
+          "primary": "google/gemma-4-31b-it"
+        }
       }
     ]
   },

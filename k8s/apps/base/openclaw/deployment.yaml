@@ -32,8 +32,13 @@ spec:
             - -c
             - |
               cp /config/openclaw.json /home/node/.openclaw/openclaw.json
-              mkdir -p /home/node/.openclaw/workspace
+              mkdir -p /home/node/.openclaw/workspace /home/node/.openclaw/codex
               cp /config/AGENTS.md /home/node/.openclaw/workspace/AGENTS.md
+              cp /config/codex-config.toml /home/node/.openclaw/codex/config.toml
+              if [ -f /codex-auth/auth.json ] && [ ! -f /home/node/.openclaw/codex/auth.json ]; then
+                cp /codex-auth/auth.json /home/node/.openclaw/codex/auth.json
+                chmod 600 /home/node/.openclaw/codex/auth.json
+              fi
           securityContext:
             runAsUser: 1000
             runAsGroup: 1000
@@ -49,6 +54,9 @@ spec:
               mountPath: /home/node/.openclaw
             - name: config
               mountPath: /config
+            - name: codex-auth
+              mountPath: /codex-auth
+              readOnly: true
       containers:
         - name: gateway
           image: ghcr.io/openclaw/openclaw:2026.6.10
@@ -67,6 +75,8 @@ spec:
               value: /home/node
             - name: OPENCLAW_CONFIG_DIR
               value: /home/node/.openclaw
+            - name: CODEX_HOME
+              value: /home/node/.openclaw/codex
             - name: NODE_ENV
               value: production
           envFrom:
@@ -118,5 +128,9 @@ spec:
         - name: config
           configMap:
             name: openclaw-config
+        - name: codex-auth
+          secret:
+            secretName: codex-auth
+            optional: true
         - name: tmp-volume
           emptyDir: {}
