@@ -8,6 +8,11 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - configmap.yaml
   - pvc.yaml
   - secrets/openclaw-secrets.enc.yaml
+
+configMapGenerator:
+  - name: openclaw-config
+    files:
+      - config/openclaw.json
+      - config/AGENTS.md
