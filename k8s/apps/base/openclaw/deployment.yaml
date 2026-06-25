@@ -110,6 +110,8 @@ spec:
           volumeMounts:
             - name: openclaw-home
               mountPath: /home/node/.openclaw
+            - name: npm-cache
+              mountPath: /home/node/.npm
             - name: tmp-volume
               mountPath: /tmp
           securityContext:
@@ -133,4 +135,6 @@ spec:
             secretName: codex-auth
             optional: true
         - name: tmp-volume
+          emptyDir: {}
+        - name: npm-cache
           emptyDir: {}
