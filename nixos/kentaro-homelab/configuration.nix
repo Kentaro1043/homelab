@@ -105,6 +105,9 @@
       # k3s
       "/var/lib/rancher/k3s"
       "/etc/rancher/k3s"
+
+      # NFS
+      "/srv/nfs/kubernetes"
     ];
     files = [
       "/etc/machine-id"
@@ -143,6 +146,7 @@
       80 # HTTP
       8080 #Alt HTTP
       6443 # k3s
+      2049 # NFSv4
     ];
     allowedUDPPorts = [
       49920 # WireGuard
