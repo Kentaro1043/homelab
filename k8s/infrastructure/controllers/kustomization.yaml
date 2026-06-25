@@ -4,3 +4,7 @@ kind: Kustomization
 resources:
   - cloudflare-tunnel-ingress-controller.yaml
   - secrets/cloudflare-credentials.enc.yaml
+
+  - csi-driver-nfs.yaml
+
+  - local-path.yaml

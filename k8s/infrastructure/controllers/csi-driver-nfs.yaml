@@ -1,0 +1,45 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: csi-driver-nfs
+  namespace: kube-system
+spec:
+  interval: 24h
+  url: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: csi-driver-nfs
+  namespace: kube-system
+spec:
+  interval: 12h
+  chart:
+    spec:
+      chart: csi-driver-nfs
+      version: "4.13.3"
+      sourceRef:
+        kind: HelmRepository
+        name: csi-driver-nfs
+        namespace: kube-system
+  values:
+    controller:
+      runOnControlPlane: true
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: nfs-homelab
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: nfs.csi.k8s.io
+parameters:
+  server: 172.17.61.1
+  share: /kubernetes
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+mountOptions:
+  - hard
+  - nfsvers=4.1
