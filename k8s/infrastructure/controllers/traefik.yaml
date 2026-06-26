@@ -19,6 +19,9 @@ metadata:
   name: traefik
   namespace: traefik
 spec:
+  dependsOn:
+    - name: cert-manager
+      namespace: cert-manager
   interval: 12h
   chart:
     spec:
