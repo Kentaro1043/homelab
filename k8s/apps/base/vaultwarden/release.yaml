@@ -1,0 +1,88 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  interval: 24h
+  url: https://guerzon.github.io/vaultwarden
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: vaultwarden
+  namespace: vaultwarden
+spec:
+  interval: 12h
+  chart:
+    spec:
+      chart: vaultwarden
+      version: "0.43.0"
+      sourceRef:
+        kind: HelmRepository
+        name: vaultwarden
+        namespace: vaultwarden
+  values:
+    domain: https://vw.kentaro1043.com
+
+    resourceType: StatefulSet
+    replicas: 0
+
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "10m"
+      limits:
+        memory: "256Mi"
+        cpu: "20m"
+
+    ingress:
+      enabled: true
+      class: cloudflare-tunnel
+      nginxIngressAnnotations: false
+      additionalAnnotations:
+        kubernetes.io/description: "Vaultwarden via Cloudflare Tunnel"
+      tls: false
+      hostname: vw.kentaro1043.com
+
+    database:
+      type: postgresql
+      host: vaultwarden-postgres-rw
+      dbName: vaultwarden
+      existingSecret: vaultwarden-postgres-app
+      existingSecretUserKey: username
+      existingSecretPasswordKey: password
+
+    storage:
+      data:
+        name: vaultwarden-data
+        size: 1Gi
+        class: nfs-homelab
+        accessMode: ReadWriteOnce
+
+    smtp:
+      host: smtp.gmail.com
+      from: service@kentaro1043.com
+      port: 587
+      security: starttls
+      existingSecret: smtp-credentials
+      username:
+        existingSecretKey: username
+      password:
+        existingSecretKey: password
+
+    pushNotifications:
+      enabled: true
+      existingSecret: push-credentials
+      installationId:
+        existingSecretKey: installation-id
+      installationKey:
+        existingSecretKey: installation-key
+
+    signupsAllowed: false
+    invitationsAllowed: false
+
+    adminToken:
+      existingSecret: admin-token
+      existingSecretKey: token

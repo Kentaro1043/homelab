@@ -1,0 +1,54 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: vaultwarden-postgres
+  namespace: vaultwarden
+spec:
+  instances: 1
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: vaultwarden-postgres-backup-store
+  storage:
+    size: 5Gi
+    storageClass: nfs-homelab
+  bootstrap:
+    initdb:
+      database: vaultwarden
+      owner: vaultwarden
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: vaultwarden-postgres-backup-store
+  namespace: vaultwarden
+spec:
+  retentionPolicy: 30d
+  configuration:
+    destinationPath: s3://kentaro1043-homelab-cnpg-backups/vaultwarden-postgres
+    endpointURL: https://storage.googleapis.com
+    s3Credentials:
+      accessKeyId:
+        name: vaultwarden-postgres-backup-s3-credentials
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: vaultwarden-postgres-backup-s3-credentials
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: vaultwarden-postgres-daily
+  namespace: vaultwarden
+spec:
+  cluster:
+    name: vaultwarden-postgres
+  schedule: "0 0 3 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
