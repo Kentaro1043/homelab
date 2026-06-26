@@ -3,3 +3,6 @@ kind: Kustomization
 
 resources:
   - letsencrypt-http01.yaml
+  - selfsigned.yaml
+  - homelab-ca.yaml
+  - traefik-dashboard-certificate.yaml

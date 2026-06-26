@@ -35,6 +35,14 @@ spec:
       enabled: true
       isDefaultClass: true
       name: traefik
+    ingressRoute:
+      dashboard:
+        enabled: true
+        matchRule: Host(`traefik.kentaro1043.internal`)
+        entryPoints:
+          - websecure
+        tls:
+          secretName: traefik-dashboard-tls
     updateStrategy:
       rollingUpdate:
         maxUnavailable: 1
