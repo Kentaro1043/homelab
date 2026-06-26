@@ -5,6 +5,10 @@ resources:
   - cloudflare-tunnel-ingress-controller.yaml
   - secrets/cloudflare-credentials.enc.yaml
 
+  - cert-manager.yaml
+
   - csi-driver-nfs.yaml
+
+  - traefik.yaml
 
   - local-path.yaml
