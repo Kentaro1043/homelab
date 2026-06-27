@@ -5,8 +5,15 @@ metadata:
   namespace: jellyfin
   labels:
     app.kubernetes.io/name: oh-my-ytdl
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - oh-my-ytdl.kentaro1043.internal
+      secretName: oh-my-ytdl-tls
   rules:
     - host: oh-my-ytdl.kentaro1043.internal
       http:
@@ -18,3 +25,17 @@ spec:
                 name: oh-my-ytdl
                 port:
                   name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: oh-my-ytdl
+  namespace: jellyfin
+spec:
+  secretName: oh-my-ytdl-tls
+  commonName: oh-my-ytdl.kentaro1043.internal
+  dnsNames:
+    - oh-my-ytdl.kentaro1043.internal
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer
