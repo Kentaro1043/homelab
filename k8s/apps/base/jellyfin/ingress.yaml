@@ -6,7 +6,7 @@ metadata:
   labels:
     app.kubernetes.io/name: oh-my-ytdl
 spec:
-  ingressClassName: cloudflare-tunnel
+  ingressClassName: traefik
   rules:
     - host: oh-my-ytdl.kentaro1043.internal
       http:
