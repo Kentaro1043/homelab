@@ -8,3 +8,4 @@ resources:
   - secrets/push.enc.yaml
   - secrets/smtp.enc.yaml
   - secrets/admin.enc.yaml
+  - secrets/db-backup.enc.yaml

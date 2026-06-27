@@ -41,8 +41,6 @@ spec:
       enabled: true
       class: cloudflare-tunnel
       nginxIngressAnnotations: false
-      additionalAnnotations:
-        kubernetes.io/description: "Vaultwarden via Cloudflare Tunnel"
       tls: false
       hostname: vw.kentaro1043.com
 

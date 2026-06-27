@@ -27,7 +27,7 @@ metadata:
 spec:
   retentionPolicy: 30d
   configuration:
-    destinationPath: s3://kentaro1043-homelab-cnpg-backups/vaultwarden-postgres
+    destinationPath: s3://backups-kentaro/vaultwarden
     endpointURL: https://storage.googleapis.com
     s3Credentials:
       accessKeyId:
