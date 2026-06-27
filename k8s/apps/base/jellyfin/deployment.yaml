@@ -17,13 +17,8 @@ spec:
       labels:
         app.kubernetes.io/name: oh-my-ytdl
     spec:
-      automountServiceAccountToken: false
       imagePullSecrets:
         - name: ghcr-pull-secret
-      securityContext:
-        fsGroup: 1000
-        seccompProfile:
-          type: RuntimeDefault
       containers:
         - name: oh-my-ytdl
           image: ghcr.io/kentaro1043/oh-my-ytdl:main
@@ -97,14 +92,6 @@ spec:
               mountPath: /media/music
             - name: shows
               mountPath: /media/shows
-          securityContext:
-            runAsNonRoot: true
-            runAsUser: 1000
-            runAsGroup: 1000
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
       volumes:
         - name: data
           persistentVolumeClaim:

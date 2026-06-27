@@ -8,3 +8,4 @@ resources:
   - service.yaml
   - ingress.yaml
   - release.yaml
+  - secrets/ghcr-pull-secret.enc.yaml
