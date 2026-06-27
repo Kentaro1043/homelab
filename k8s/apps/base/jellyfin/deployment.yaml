@@ -52,8 +52,6 @@ spec:
               value: mp3
             - name: OH_MY_YTDL_DEFAULT_VIDEO_CONTAINER
               value: mp4
-            - name: OH_MY_YTDL_WRITE_COVER_IMAGES
-              value: "true"
             - name: OH_MY_YTDL_YTDLP_YOUTUBE_LANG
               value: ja
             - name: OH_MY_YTDL_YTDLP_SLEEP_REQUESTS
