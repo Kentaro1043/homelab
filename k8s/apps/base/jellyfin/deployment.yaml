@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oh-my-ytdl
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: oh-my-ytdl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: oh-my-ytdl
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: oh-my-ytdl
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: oh-my-ytdl
+          image: ghcr.io/kentaro1043/oh-my-ytdl:main
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          env:
+            - name: OH_MY_YTDL_HOST
+              value: 0.0.0.0
+            - name: OH_MY_YTDL_PORT
+              value: "8000"
+            - name: OH_MY_YTDL_DB_PATH
+              value: /data/oh-my-ytdl.sqlite3
+            - name: OH_MY_YTDL_WORK_DIR
+              value: /data/work
+            - name: OH_MY_YTDL_MUSIC_ROOT
+              value: /media/music
+            - name: OH_MY_YTDL_SHOWS_ROOT
+              value: /media/shows
+            - name: OH_MY_YTDL_MAX_CONCURRENT_JOBS
+              value: "1"
+            - name: OH_MY_YTDL_DEFAULT_AUDIO_FORMAT
+              value: mp3
+            - name: OH_MY_YTDL_DEFAULT_VIDEO_CONTAINER
+              value: mp4
+            - name: OH_MY_YTDL_WRITE_COVER_IMAGES
+              value: "false"
+            - name: OH_MY_YTDL_YTDLP_YOUTUBE_LANG
+              value: ja
+            - name: OH_MY_YTDL_YTDLP_SLEEP_REQUESTS
+              value: "1.0"
+            - name: OH_MY_YTDL_YTDLP_SLEEP_INTERVAL
+              value: "5.0"
+            - name: OH_MY_YTDL_YTDLP_MAX_SLEEP_INTERVAL
+              value: "15.0"
+            - name: OH_MY_YTDL_YTDLP_SLEEP_SUBTITLES
+              value: "1.0"
+            - name: OH_MY_YTDL_YTDLP_OPERATION_INTERVAL
+              value: "5.0"
+            - name: OH_MY_YTDL_YTDLP_ERROR_RETRY_ATTEMPTS
+              value: "3"
+            - name: OH_MY_YTDL_YTDLP_ERROR_RETRY_DELAY
+              value: "60.0"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: music
+              mountPath: /media/music
+            - name: shows
+              mountPath: /media/shows
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: oh-my-ytdl-data
+        - name: music
+          persistentVolumeClaim:
+            claimName: jellyfin-music
+        - name: shows
+          persistentVolumeClaim:
+            claimName: jellyfin-shows

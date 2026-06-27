@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oh-my-ytdl
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: oh-my-ytdl
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: oh-my-ytdl.kentaro1043.internal
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: oh-my-ytdl
+                port:
+                  name: http
