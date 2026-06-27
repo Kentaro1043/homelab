@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pds
+  namespace: pds
+  labels:
+    app.kubernetes.io/name: pds
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: pds.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: pds
+                port:
+                  name: http
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pds-wildcard
+  namespace: pds
+  labels:
+    app.kubernetes.io/name: pds
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: "*.pds.kentaro1043.com"
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: pds
+                port:
+                  name: http

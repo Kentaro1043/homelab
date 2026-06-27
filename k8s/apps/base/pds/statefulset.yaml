@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pds
+  namespace: pds
+  labels:
+    app: pds
+spec:
+  replicas: 1
+  serviceName: pds
+  selector:
+    matchLabels:
+      app: pds
+  template:
+    metadata:
+      labels:
+        app: pds
+    spec:
+      containers:
+        - name: pds
+          image: ghcr.io/bluesky-social/pds:0.4.5009
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 2583
+          env:
+            - name: PDS_HOSTNAME
+              value: pds.kentaro1043.com
+            - name: PDS_DATA_DIRECTORY
+              value: /pds/data
+            - name: PDS_BLOBSTORE_DISK_LOCATION
+              value: /pds/blocks
+            - name: PDS_BLOB_UPLOAD_LIMIT
+              value: "104857600"
+            - name: PDS_DID_PLC_URL
+              value: https://plc.directory
+            - name: PDS_BSKY_APP_VIEW_URL
+              value: https://api.bsky.app
+            - name: PDS_BSKY_APP_VIEW_DID
+              value: did:web:api.bsky.app
+            - name: PDS_REPORT_SERVICE_URL
+              value: https://mod.bsky.app
+            - name: PDS_REPORT_SERVICE_DID
+              value: did:plc:ar7c4by46qjdydhdevvrndac
+            - name: PDS_CRAWLERS
+              value: https://bsky.network
+            - name: LOG_ENABLED
+              value: "true"
+            - name: PDS_EMAIL_FROM_ADDRESS
+              value: service@kentaro1043.com
+          envFrom:
+            - secretRef:
+                name: pds-secrets
+            - secretRef:
+                name: smtp-credentials
+          resources:
+            requests:
+              cpu: "100m"
+              memory: 128Mi
+            limits:
+              cpu: "200m"
+              memory: 256Mi
+          volumeMounts:
+            - name: data
+              mountPath: /pds/data
+            - name: blocks
+              mountPath: /pds/blocks
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-homelab
+        resources:
+          requests:
+            storage: 1Gi
+    - metadata:
+        name: blocks
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: nfs-homelab
+        resources:
+          requests:
+            storage: 1Gi
