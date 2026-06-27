@@ -27,7 +27,7 @@ spec:
     domain: https://vw.kentaro1043.com
 
     resourceType: StatefulSet
-    replicas: 0
+    replicas: 1
 
     resources:
       requests:
