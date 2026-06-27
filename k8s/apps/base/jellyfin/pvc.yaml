@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/component: music
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: nfs-homelab
   resources:
     requests:
@@ -25,7 +25,7 @@ metadata:
     app.kubernetes.io/component: books
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: nfs-homelab
   resources:
     requests:
@@ -41,7 +41,7 @@ metadata:
     app.kubernetes.io/component: shows
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   storageClassName: nfs-homelab
   resources:
     requests:

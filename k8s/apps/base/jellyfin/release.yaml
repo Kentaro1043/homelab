@@ -34,6 +34,14 @@ spec:
         cpu: "1"
         memory: "1Gi"
 
+    podSecurityContext:
+      fsGroup: 1000
+      fsGroupChangePolicy: OnRootMismatch
+
+    securityContext:
+      runAsUser: 1000
+      runAsGroup: 1000
+
     ingress:
       enabled: true
       className: cloudflare-tunnel

@@ -19,10 +19,16 @@ spec:
     spec:
       imagePullSecrets:
         - name: ghcr-pull-secret
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
       containers:
         - name: oh-my-ytdl
           image: ghcr.io/kentaro1043/oh-my-ytdl:main
           imagePullPolicy: Always
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
           ports:
             - name: http
               containerPort: 8000
