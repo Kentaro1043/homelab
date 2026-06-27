@@ -18,6 +18,8 @@ spec:
         app.kubernetes.io/name: oh-my-ytdl
     spec:
       automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-pull-secret
       securityContext:
         fsGroup: 1000
         seccompProfile:
