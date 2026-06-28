@@ -42,6 +42,8 @@ spec:
               value: /data/oh-my-ytdl.sqlite3
             - name: OH_MY_YTDL_WORK_DIR
               value: /data/work
+            - name: OH_MY_YTDL_YTDLP_TEMP_DIR
+              value: /tmp/oh-my-ytdl
             - name: OH_MY_YTDL_MUSIC_ROOT
               value: /media/music
             - name: OH_MY_YTDL_SHOWS_ROOT
@@ -92,6 +94,8 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data
+            - name: ytdlp-temp
+              mountPath: /tmp/oh-my-ytdl
             - name: music
               mountPath: /media/music
             - name: shows
@@ -100,6 +104,8 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: oh-my-ytdl-data
+        - name: ytdlp-temp
+          emptyDir: {}
         - name: music
           persistentVolumeClaim:
             claimName: jellyfin-music
