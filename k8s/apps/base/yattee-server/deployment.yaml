@@ -1,0 +1,87 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: yattee-server
+  namespace: yattee-server
+  labels:
+    app: yattee-server
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: yattee-server
+  template:
+    metadata:
+      labels:
+        app: yattee-server
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: yattee-server
+          image: docker.io/yattee/yattee-server:1.0.6
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8085
+          env:
+            - name: HOST
+              value: 0.0.0.0
+            - name: PORT
+              value: "8085"
+            - name: DATA_DIR
+              value: /app/data
+            - name: DOWNLOAD_DIR
+              value: /downloads
+            - name: INVIDIOUS_INSTANCE_URL
+              value: http://invidious.invidious.svc.cluster.local:3000
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: data
+              mountPath: /app/data
+            - name: downloads
+              mountPath: /downloads
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: yattee-server-data
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: yattee-server-downloads

@@ -1,0 +1,39 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: yattee-server
+  namespace: yattee-server
+  labels:
+    app.kubernetes.io/name: yattee-server
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - yattee.internal.kentaro1043.com
+      secretName: yattee-server-tls
+  rules:
+    - host: yattee.internal.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: yattee-server
+                port:
+                  name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: yattee-server
+  namespace: yattee-server
+spec:
+  secretName: yattee-server-tls
+  commonName: yattee.internal.kentaro1043.com
+  dnsNames:
+    - yattee.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer

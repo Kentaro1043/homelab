@@ -5,4 +5,5 @@ resources:
   - ../base/invidious
   - ../base/jellyfin
   - ../base/openclaw
+  - ../base/yattee-server
   - ../base/vaultwarden
