@@ -1,0 +1,196 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: invidious
+  namespace: invidious
+  labels:
+    app: invidious
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: invidious
+  template:
+    metadata:
+      labels:
+        app: invidious
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: render-config
+          image: docker.io/library/busybox:1.37.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+
+              yaml_quote() {
+                printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+              }
+
+              {
+                printf 'db:\n'
+                printf '  dbname: invidious\n'
+                printf '  user: invidious\n'
+                printf '  host: invidious-postgres-rw\n'
+                printf '  port: 5432\n'
+                printf '  password: %s\n' "$(yaml_quote "$DB_PASSWORD")"
+                cat /config-source/application.yml
+                printf 'invidious_companion_key: %s\n' "$(yaml_quote "$COMPANION_KEY")"
+                printf 'hmac_key: %s\n' "$(yaml_quote "$HMAC_KEY")"
+              } > /config/config.yml
+
+              chown 1000:1000 /config/config.yml
+              chmod 0400 /config/config.yml
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: invidious-postgres-app
+                  key: password
+            - name: COMPANION_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: invidious-secrets
+                  key: companion-key
+            - name: HMAC_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: invidious-secrets
+                  key: hmac-key
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 50m
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: invidious-config-source
+              mountPath: /config-source
+              readOnly: true
+            - name: invidious-config
+              mountPath: /config
+      containers:
+        - name: invidious
+          image: quay.io/invidious/invidious:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            - name: INVIDIOUS_CONFIG_FILE
+              value: /config/config.yml
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1536Mi
+          startupProbe:
+            httpGet:
+              path: /api/v1/stats
+              port: http
+            failureThreshold: 60
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/v1/stats
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/v1/stats
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: invidious-config
+              mountPath: /config
+              readOnly: true
+        - name: companion
+          image: quay.io/invidious/invidious-companion:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: companion
+              containerPort: 8282
+          env:
+            - name: SERVER_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: invidious-secrets
+                  key: companion-key
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /healthz
+              port: companion
+            failureThreshold: 30
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: companion
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: companion
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: companion-cache
+              mountPath: /var/tmp/youtubei.js
+      volumes:
+        - name: invidious-config-source
+          configMap:
+            name: invidious-config
+        - name: invidious-config
+          emptyDir: {}
+        - name: companion-cache
+          emptyDir: {}

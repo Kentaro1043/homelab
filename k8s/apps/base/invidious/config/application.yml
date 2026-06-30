@@ -1,0 +1,9 @@
+check_tables: true
+domain: inv.internal.kentaro1043.com
+external_port: 443
+https_only: true
+statistics_enabled: false
+use_innertube_for_captions: true
+use_pubsub_feeds: true
+invidious_companion:
+  - private_url: "http://127.0.0.1:8282/companion"

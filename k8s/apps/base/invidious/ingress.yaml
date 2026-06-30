@@ -1,0 +1,39 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: invidious
+  namespace: invidious
+  labels:
+    app.kubernetes.io/name: invidious
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - inv.internal.kentaro1043.com
+      secretName: invidious-tls
+  rules:
+    - host: inv.internal.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: invidious
+                port:
+                  name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: invidious
+  namespace: invidious
+spec:
+  secretName: invidious-tls
+  commonName: inv.internal.kentaro1043.com
+  dnsNames:
+    - inv.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer

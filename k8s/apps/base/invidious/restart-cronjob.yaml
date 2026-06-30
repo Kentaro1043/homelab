@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: invidious-restarter
+  namespace: invidious
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: invidious-restarter
+  namespace: invidious
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    resourceNames:
+      - invidious
+    verbs:
+      - get
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: invidious-restarter
+  namespace: invidious
+subjects:
+  - kind: ServiceAccount
+    name: invidious-restarter
+    namespace: invidious
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: invidious-restarter
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: invidious-restarter
+  namespace: invidious
+spec:
+  schedule: "0 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          serviceAccountName: invidious-restarter
+          restartPolicy: OnFailure
+          containers:
+            - name: restart
+              image: docker.io/curlimages/curl:8.16.0
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -ec
+                - |
+                  token="$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)"
+                  namespace="$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)"
+                  timestamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+                  curl --fail-with-body --silent --show-error \
+                    --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt \
+                    -H "Authorization: Bearer ${token}" \
+                    -H "Content-Type: application/strategic-merge-patch+json" \
+                    -X PATCH \
+                    --data "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"invidious.kentaro1043.com/restarted-at\":\"${timestamp}\"}}}}}" \
+                    "https://${KUBERNETES_SERVICE_HOST}:${KUBERNETES_SERVICE_PORT}/apis/apps/v1/namespaces/${namespace}/deployments/invidious"
+              resources:
+                requests:
+                  cpu: 10m
+                  memory: 32Mi
+                limits:
+                  cpu: 50m
+                  memory: 64Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                capabilities:
+                  drop:
+                    - ALL

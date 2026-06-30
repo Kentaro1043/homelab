@@ -1,0 +1,15 @@
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: invidious-postgres
+  namespace: invidious
+spec:
+  instances: 1
+  storage:
+    size: 1Gi
+    storageClass: nfs-homelab
+  bootstrap:
+    initdb:
+      database: invidious
+      owner: invidious
