@@ -12,10 +12,10 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - oh-my-ytdl.kentaro1043.internal
+        - oh-my-ytdl.internal.kentaro1043.com
       secretName: oh-my-ytdl-tls
   rules:
-    - host: oh-my-ytdl.kentaro1043.internal
+    - host: oh-my-ytdl.internal.kentaro1043.com
       http:
         paths:
           - pathType: Prefix
@@ -33,9 +33,9 @@ metadata:
   namespace: jellyfin
 spec:
   secretName: oh-my-ytdl-tls
-  commonName: oh-my-ytdl.kentaro1043.internal
+  commonName: oh-my-ytdl.internal.kentaro1043.com
   dnsNames:
-    - oh-my-ytdl.kentaro1043.internal
+    - oh-my-ytdl.internal.kentaro1043.com
   issuerRef:
     name: homelab-ca
     kind: ClusterIssuer

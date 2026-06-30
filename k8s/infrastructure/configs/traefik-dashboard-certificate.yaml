@@ -5,9 +5,9 @@ metadata:
   namespace: traefik
 spec:
   secretName: traefik-dashboard-tls
-  commonName: traefik.kentaro1043.internal
+  commonName: traefik.internal.kentaro1043.com
   dnsNames:
-    - traefik.kentaro1043.internal
+    - traefik.internal.kentaro1043.com
   issuerRef:
     name: homelab-ca
     kind: ClusterIssuer

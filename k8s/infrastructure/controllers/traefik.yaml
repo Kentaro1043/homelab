@@ -41,7 +41,7 @@ spec:
     ingressRoute:
       dashboard:
         enabled: true
-        matchRule: Host(`traefik.kentaro1043.internal`)
+        matchRule: Host(`traefik.internal.kentaro1043.com`)
         entryPoints:
           - websecure
         tls:
