@@ -19,6 +19,7 @@ spec:
         app: invidious
     spec:
       automountServiceAccountToken: false
+      enableServiceLinks: false
       securityContext:
         fsGroup: 10001
         fsGroupChangePolicy: OnRootMismatch
