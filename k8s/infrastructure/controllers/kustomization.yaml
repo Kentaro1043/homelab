@@ -9,6 +9,8 @@ resources:
 
   - cloudnative-pg.yaml
 
+  - mariadb-operator.yaml
+
   - csi-driver-nfs.yaml
 
   - traefik.yaml
