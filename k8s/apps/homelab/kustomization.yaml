@@ -7,3 +7,4 @@ resources:
   - ../base/openclaw
   - ../base/yattee-server
   - ../base/vaultwarden
+  - ../base/wavelog

@@ -1,0 +1,76 @@
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: MariaDB
+metadata:
+  name: wavelog-db
+  namespace: wavelog
+  labels:
+    app.kubernetes.io/name: wavelog
+    app.kubernetes.io/component: mariadb
+spec:
+  image: docker.io/library/mariadb:12.3.2
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  port: 3306
+  rootPasswordSecretKeyRef:
+    name: wavelog-mariadb
+    key: root-password
+  username: wavelog
+  passwordSecretKeyRef:
+    name: wavelog-mariadb
+    key: password
+  database: wavelog
+  storage:
+    size: 1Gi
+    storageClassName: nfs-homelab
+  service:
+    type: ClusterIP
+  enableServiceLinks: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+---
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: PhysicalBackup
+metadata:
+  name: wavelog-db-daily
+  namespace: wavelog
+  labels:
+    app.kubernetes.io/name: wavelog
+    app.kubernetes.io/component: mariadb-backup
+spec:
+  mariaDbRef:
+    name: wavelog-db
+    waitForIt: true
+  target: PreferReplica
+  schedule:
+    cron: "0 3 * * *"
+    suspend: false
+  maxRetention: 720h
+  compression: gzip
+  timeout: 1h
+  podAffinity: true
+  storage:
+    s3:
+      bucket: backups-kentaro
+      prefix: wavelog
+      endpoint: storage.googleapis.com
+      region: auto
+      accessKeyIdSecretKeyRef:
+        name: wavelog-db-backup-s3
+        key: ACCESS_KEY_ID
+      secretAccessKeySecretKeyRef:
+        name: wavelog-db-backup-s3
+        key: ACCESS_SECRET_KEY
+      tls:
+        enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 300m
+      memory: 512Mi

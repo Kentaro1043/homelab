@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wavelog
+  namespace: wavelog
+  labels:
+    app.kubernetes.io/name: wavelog
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: wavelog
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: wavelog
+    spec:
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      containers:
+        - name: wavelog
+          image: ghcr.io/wavelog/wavelog:3.0.0
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          env:
+            - name: CI_ENV
+              value: docker
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            failureThreshold: 60
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: config
+              mountPath: /var/www/html/application/config/docker
+            - name: uploads
+              mountPath: /var/www/html/uploads
+            - name: userdata
+              mountPath: /var/www/html/userdata
+      volumes:
+        - name: config
+          persistentVolumeClaim:
+            claimName: wavelog-config
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: wavelog-uploads
+        - name: userdata
+          persistentVolumeClaim:
+            claimName: wavelog-userdata

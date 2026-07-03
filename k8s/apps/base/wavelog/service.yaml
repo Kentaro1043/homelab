@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wavelog
+  namespace: wavelog
+  labels:
+    app.kubernetes.io/name: wavelog
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: wavelog
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP

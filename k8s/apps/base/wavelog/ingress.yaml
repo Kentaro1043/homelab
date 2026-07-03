@@ -1,0 +1,21 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wavelog
+  namespace: wavelog
+  labels:
+    app.kubernetes.io/name: wavelog
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: wavelog.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: wavelog
+                port:
+                  name: http
