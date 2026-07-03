@@ -37,21 +37,18 @@ spec:
               cpu: 500m
               memory: 512Mi
           startupProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
             failureThreshold: 60
             periodSeconds: 5
           livenessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 3
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: http
             periodSeconds: 10
             timeoutSeconds: 5
