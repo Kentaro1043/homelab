@@ -10,7 +10,6 @@ resources:
   - ingress.yaml
   - pvc.yaml
   - secrets/openclaw-secrets.enc.yaml
-  - secrets/codex-auth.enc.yaml
 
 configMapGenerator:
   - name: openclaw-config
