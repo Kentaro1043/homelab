@@ -16,4 +16,3 @@ configMapGenerator:
     files:
       - config/openclaw.json
       - config/AGENTS.md
-      - config/codex-config.toml
