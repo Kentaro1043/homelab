@@ -1,0 +1,39 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adguard-home
+  namespace: adguard-home
+  labels:
+    app.kubernetes.io/name: adguard-home
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - adguard.internal.kentaro1043.com
+      secretName: adguard-home-tls
+  rules:
+    - host: adguard.internal.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: adguard-home-web
+                port:
+                  name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: adguard-home
+  namespace: adguard-home
+spec:
+  secretName: adguard-home-tls
+  commonName: adguard.internal.kentaro1043.com
+  dnsNames:
+    - adguard.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer
