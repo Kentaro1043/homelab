@@ -129,6 +129,10 @@
   # Network
   networking = {
     hostName = "kentaro-homelab";
+    nameservers = [
+      "94.140.14.14"
+      "94.140.15.15"
+    ];
     nat = {
       enable = true;
       enableIPv6 = true;
@@ -136,7 +140,23 @@
       internalInterfaces = ["wg0"];
     };
     useNetworkd = true; # for WireGuard
+    useDHCP = false;
   };
+  services.resolved = {
+    enable = true;
+    settings.Resolve = {
+      DNS = config.networking.nameservers;
+      FallbackDNS = [
+        "1.1.1.1"
+        "8.8.8.8"
+      ];
+      DNSOverTLS = false;
+      DNSSEC = false;
+    };
+  };
+  # k3s/containerd should use real upstream DNS servers, not the
+  # systemd-resolved stub at 127.0.0.53.
+  environment.etc."resolv.conf".source = lib.mkForce "/run/systemd/resolve/resolv.conf";
   systemd.network.enable = true;
   # Firewall
   networking.firewall = {
@@ -154,6 +174,17 @@
   };
   # WireGuard
   systemd.network = {
+    networks."10-enp51s0" = {
+      matchConfig.Name = "enp51s0";
+      networkConfig = {
+        DHCP = "yes";
+        DNS = config.networking.nameservers;
+        IPv6PrivacyExtensions = "kernel";
+      };
+      dhcpV4Config.UseDNS = false;
+      dhcpV6Config.UseDNS = false;
+      ipv6AcceptRAConfig.UseDNS = false;
+    };
     networks."50-wg0" = {
       matchConfig.Name = "wg0";
       networkConfig = {
