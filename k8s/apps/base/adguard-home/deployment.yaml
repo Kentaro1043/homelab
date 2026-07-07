@@ -40,9 +40,6 @@ spec:
             - name: http
               containerPort: 3000
               protocol: TCP
-            - name: http-admin
-              containerPort: 80
-              protocol: TCP
           resources:
             requests:
               cpu: 50m
