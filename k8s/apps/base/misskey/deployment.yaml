@@ -6,7 +6,7 @@ metadata:
   labels:
     app: misskey
 spec:
-  replicas: 1
+  replicas: 0
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -20,42 +20,6 @@ spec:
       labels:
         app: misskey
     spec:
-      initContainers:
-        - name: render-config
-          image: docker.io/library/busybox:1.37.0
-          command:
-            - /bin/sh
-            - -c
-            - |
-              set -eu
-              cp /config-src/default.yml /config/default.yml
-              db_password_escaped="$(printf '%s' "$DB_PASSWORD" | sed 's/[&|\\]/\\&/g')"
-              sed -i \
-                -e 's|host: private.oci.kentaro1043.com|host: misskey-postgres-rw|' \
-                -e 's|port: 5432|port: 5432|' \
-                -e 's|db: misskey|db: misskey|' \
-                -e 's|user: misskey|user: misskey|' \
-                -e "s|pass: .*|pass: ${db_password_escaped}|" \
-                /config/default.yml
-          env:
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: misskey-postgres-app
-                  key: password
-          resources:
-            requests:
-              cpu: 10m
-              memory: 32Mi
-            limits:
-              cpu: 50m
-              memory: 64Mi
-          volumeMounts:
-            - name: misskey-config-source
-              mountPath: /config-src
-              readOnly: true
-            - name: misskey-config
-              mountPath: /config
       containers:
         - name: misskey
           image: docker.io/misskey/misskey:2026.5.3
@@ -89,10 +53,9 @@ spec:
           volumeMounts:
             - name: misskey-config
               mountPath: /misskey/.config
+              subPath: default.yml
               readOnly: true
       volumes:
-        - name: misskey-config-source
+        - name: misskey-config
           secret:
             secretName: misskey-config
-        - name: misskey-config
-          emptyDir: {}
