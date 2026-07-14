@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: seaweedfs
+---
+apiVersion: seaweed.seaweedfs.com/v1
+kind: Seaweed
+metadata:
+  name: seaweedfs
+  namespace: seaweedfs
+spec:
+  image: chrislusf/seaweedfs:4.29
+  volumeServerDiskCount: 1
+
+  master:
+    replicas: 1
+    defaultReplication: "000"
+    volumeSizeLimitMB: 1024
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    service:
+      type: ClusterIP
+
+  volume:
+    replicas: 1
+    storageClassName: local-path
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      storage: 100Gi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+    service:
+      type: ClusterIP
+
+  filer:
+    replicas: 1
+    persistence:
+      enabled: true
+      storageClassName: local-path
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 5Gi
+    config: |
+      [leveldb2]
+      enabled = true
+      dir = "/data/filerldb2"
+    extraArgs:
+      - "-iam"
+      - "-s3.iam.readOnly=false"
+    s3:
+      enabled: true
+    iam: true
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    service:
+      type: ClusterIP

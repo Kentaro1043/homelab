@@ -1,8 +1,8 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: misskey-postgres
-  namespace: misskey
+  name: authentik-postgres
+  namespace: authentik
 spec:
   instances: 1
   storage:
@@ -10,5 +10,5 @@ spec:
     storageClass: nfs-homelab
   bootstrap:
     initdb:
-      database: misskey
-      owner: misskey
+      database: authentik
+      owner: authentik
