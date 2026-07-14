@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: palworld
+  namespace: palworld
+  labels:
+    app: palworld
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: palworld
+  template:
+    metadata:
+      labels:
+        app: palworld
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/arch
+                    operator: In
+                    values:
+                      - amd64
+      containers:
+        - name: palworld
+          image: ghcr.io/pocketpairjp/palserver:v1.0.0.100427
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sudo chown -R user:usergroup /pal/Package/Pal/Saved
+              exec /bin/sh /pal/Package/PalServer.sh "$@"
+            - --
+          args:
+            - -port=49921
+            - -useperfthreads
+            - -NoAsyncLoadingThread
+            - -UseMultithreadForDS
+          ports:
+            - name: game
+              containerPort: 49921
+              protocol: UDP
+          resources:
+            requests:
+              cpu: "1"
+              memory: 4Gi
+          volumeMounts:
+            - name: saved
+              mountPath: /pal/Package/Pal/Saved
+      volumes:
+        - name: saved
+          persistentVolumeClaim:
+            claimName: palworld-saved

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: palworld
+  namespace: palworld
+  labels:
+    app: palworld
+spec:
+  type: LoadBalancer
+  selector:
+    app: palworld
+  ports:
+    - name: game
+      port: 49921
+      targetPort: game
+      protocol: UDP

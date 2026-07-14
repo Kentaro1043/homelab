@@ -6,6 +6,7 @@ resources:
   - ../base/invidious
   - ../base/jellyfin
   - ../base/openclaw
+  - ../base/palworld
   - ../base/yattee-server
   - ../base/vaultwarden
   - ../base/wavelog
