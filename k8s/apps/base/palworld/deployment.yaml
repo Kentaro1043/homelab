@@ -28,7 +28,7 @@ spec:
                       - amd64
       containers:
         - name: palworld
-          image: ghcr.io/pocketpairjp/palserver:v1.0.0.100427 # {"$imagepolicy": "palworld:palworld"}
+          image: ghcr.io/pocketpairjp/palserver:v1.0.1.100619 # {"$imagepolicy": "palworld:palworld"}
           imagePullPolicy: IfNotPresent
           command:
             - /bin/sh
