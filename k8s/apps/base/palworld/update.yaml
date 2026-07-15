@@ -1,0 +1,49 @@
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageRepository
+metadata:
+  name: palworld
+  namespace: palworld
+spec:
+  image: ghcr.io/pocketpairjp/palserver
+  interval: 30m
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImagePolicy
+metadata:
+  name: palworld
+  namespace: palworld
+spec:
+  imageRepositoryRef:
+    name: palworld
+  filterTags:
+    pattern: '^v[0-9]+\.[0-9]+\.[0-9]+\.(?P<build>[0-9]+)$'
+    extract: "$build"
+  policy:
+    numerical:
+      order: asc
+---
+apiVersion: image.toolkit.fluxcd.io/v1
+kind: ImageUpdateAutomation
+metadata:
+  name: palworld
+  namespace: palworld
+spec:
+  interval: 30m
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  git:
+    checkout:
+      ref:
+        branch: main
+    commit:
+      author:
+        email: fluxcdbot@users.noreply.github.com
+        name: fluxcdbot
+    push:
+      branch: main
+  update:
+    path: ./k8s/apps/base/palworld
+    strategy: Setters
