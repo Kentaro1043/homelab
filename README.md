@@ -69,6 +69,19 @@ nvme0n1     259:0    0 476.9G  0 disk
   --components-extra source-watcher
 ```
 
+### component追加
+
+```log
+λ flux bootstrap github \
+  --token-auth \
+  --owner=Kentaro1043 \
+  --repository=homelab \
+  --branch=main \
+  --path=k8s/clusters/homelab \
+  --personal \
+  --components-extra=source-watcher,image-reflector-controller,image-automation-controller
+```
+
 ### sops-age
 
 ```log
