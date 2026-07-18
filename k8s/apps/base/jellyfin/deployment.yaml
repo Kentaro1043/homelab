@@ -51,7 +51,7 @@ spec:
             - name: OH_MY_YTDL_MAX_CONCURRENT_JOBS
               value: "1"
             - name: OH_MY_YTDL_DEFAULT_AUDIO_FORMAT
-              value: mp3
+              value: m4a
             - name: OH_MY_YTDL_DEFAULT_VIDEO_CONTAINER
               value: mp4
             - name: OH_MY_YTDL_YTDLP_YOUTUBE_LANG
