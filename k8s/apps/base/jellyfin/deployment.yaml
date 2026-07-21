@@ -54,6 +54,8 @@ spec:
               value: m4a
             - name: OH_MY_YTDL_DEFAULT_VIDEO_CONTAINER
               value: mp4
+            - name: OH_MY_YTDL_WRITE_ARTIST_IMAGES
+              value: "true"
             - name: OH_MY_YTDL_YTDLP_YOUTUBE_LANG
               value: ja
             - name: OH_MY_YTDL_YTDLP_SLEEP_REQUESTS
