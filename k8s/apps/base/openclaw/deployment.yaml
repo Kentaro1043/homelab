@@ -23,14 +23,13 @@ spec:
         seccompProfile:
           type: RuntimeDefault
       initContainers:
-        - name: init-config
+        - name: init-workspace
           image: busybox:1.38.0
           imagePullPolicy: IfNotPresent
           command:
             - sh
             - -c
             - |
-              cp /config/openclaw.json /home/node/.openclaw/openclaw.json
               mkdir -p /home/node/.openclaw/workspace
               cp /config/AGENTS.md /home/node/.openclaw/workspace/AGENTS.md
           securityContext:
@@ -48,6 +47,7 @@ spec:
               mountPath: /home/node/.openclaw
             - name: config
               mountPath: /config
+              readOnly: true
       containers:
         - name: gateway
           image: ghcr.io/openclaw/openclaw:2026.7.1 # {"$imagepolicy": "openclaw:openclaw"}
@@ -64,10 +64,12 @@ spec:
           env:
             - name: HOME
               value: /home/node
-            - name: OPENCLAW_CONFIG_DIR
-              value: /home/node/.openclaw
+            - name: OPENCLAW_CONFIG_PATH
+              value: /config/openclaw.json
             - name: OPENCLAW_NIX_MODE
               value: "1"
+            - name: OPENCLAW_STATE_DIR
+              value: /home/node/.openclaw
             - name: NODE_ENV
               value: production
           envFrom:
@@ -99,6 +101,9 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
           volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
             - name: openclaw-home
               mountPath: /home/node/.openclaw
             - name: npm-cache
