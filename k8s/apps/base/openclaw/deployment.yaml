@@ -66,6 +66,8 @@ spec:
               value: /home/node
             - name: OPENCLAW_CONFIG_DIR
               value: /home/node/.openclaw
+            - name: OPENCLAW_NIX_MODE
+              value: "1"
             - name: NODE_ENV
               value: production
           envFrom:
