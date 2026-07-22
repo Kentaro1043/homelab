@@ -11,6 +11,7 @@ resources:
   - ingress.yaml
   - restart-cronjob.yaml
   - secrets/invidious-secrets.enc.yaml
+  - update.yaml
 
 configMapGenerator:
   - name: invidious-config

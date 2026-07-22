@@ -29,7 +29,7 @@ spec:
                       - kentaro-homelab
       containers:
         - name: adguard-home
-          image: docker.io/adguard/adguardhome:v0.107.77
+          image: docker.io/adguard/adguardhome:v0.107.77  # {"$imagepolicy": "adguard-home:adguard-home"}
           ports:
             - name: dns-tcp
               containerPort: 53

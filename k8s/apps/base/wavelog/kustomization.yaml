@@ -12,3 +12,4 @@ resources:
   - ingress.yaml
   - secrets/mariadb.enc.yaml
   - secrets/db-backup.enc.yaml
+  - update.yaml
