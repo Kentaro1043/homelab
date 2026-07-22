@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,7 +24,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: yattee-server
-          image: docker.io/yattee/yattee-server:1.0.6  # {"$imagepolicy": "yattee-server:yattee-server"}
+          image: docker.io/yattee/yattee-server:1.0.7 # {"$imagepolicy": "yattee-server:yattee-server"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
