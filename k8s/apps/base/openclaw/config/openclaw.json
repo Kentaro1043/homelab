@@ -15,7 +15,7 @@
     "defaults": {
       "workspace": "~/.openclaw/workspace",
       "models": {
-        "openai/gpt-5.5": {
+        "openai/gpt-5.6-sol": {
           "agentRuntime": {
             "id": "codex"
           }
@@ -26,6 +26,9 @@
         "google/gemma-4-26b-a4b-it": {
           "alias": "gemma-4-26b"
         }
+      },
+      "imageGenerationModel": {
+        "primary": "openai/gpt-image-2"
       }
     },
     "list": [
@@ -36,7 +39,7 @@
         },
         "workspace": "~/.openclaw/workspace",
         "model": {
-          "primary": "openai/gpt-5.5"
+          "primary": "openai/gpt-5.6-sol"
         }
       }
     ]
@@ -50,7 +53,12 @@
       "guilds": {
         "1366927360435425371": {
           "requireMention": true,
-          "users": ["766615423453364234"]
+          "users": ["766615423453364234"],
+          "channels": {
+            "1529514412417744957": {
+              "requireMention": false
+            }
+          }
         }
       },
       "dmPolicy": "allowlist",
