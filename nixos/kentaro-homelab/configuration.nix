@@ -130,8 +130,9 @@
   networking = {
     hostName = "kentaro-homelab";
     nameservers = [
-      "1.1.1.1"
-      "1.0.0.1"
+      "192.168.1.1"
+      "8.8.8.8"
+      "9.9.9.9"
     ];
     nat = {
       enable = true;
