@@ -130,8 +130,8 @@
   networking = {
     hostName = "kentaro-homelab";
     nameservers = [
-      "94.140.14.14"
-      "94.140.15.15"
+      "1.1.1.1"
+      "1.0.0.1"
     ];
     nat = {
       enable = true;
@@ -146,10 +146,6 @@
     enable = true;
     settings.Resolve = {
       DNS = config.networking.nameservers;
-      FallbackDNS = [
-        "1.1.1.1"
-        "8.8.8.8"
-      ];
       DNSOverTLS = false;
       DNSSEC = false;
     };
