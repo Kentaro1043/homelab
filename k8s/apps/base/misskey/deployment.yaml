@@ -34,15 +34,11 @@ spec:
                 printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
               }
 
-              cat /config-source/default.yml > /config/default.yml
               {
-                printf '\ndb:\n'
-                printf '  host: misskey-postgres-rw\n'
-                printf '  port: 5432\n'
-                printf '  db: misskey\n'
-                printf '  user: misskey\n'
+                sed '/^dbReplications:/,$d' /config-source/default.yml
                 printf '  pass: %s\n' "$(yaml_quote "$DB_PASSWORD")"
-              } >> /config/default.yml
+                sed -n '/^dbReplications:/,$p' /config-source/default.yml
+              } > /config/default.yml
               chmod 0444 /config/default.yml
           env:
             - name: DB_PASSWORD
