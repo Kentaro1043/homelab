@@ -20,6 +20,49 @@ spec:
       labels:
         app: misskey
     spec:
+      initContainers:
+        - name: render-config
+          image: docker.io/library/busybox:1.37.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+
+              yaml_quote() {
+                printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"
+              }
+
+              cat /config-source/default.yml > /config/default.yml
+              {
+                printf '\ndb:\n'
+                printf '  host: misskey-postgres-rw\n'
+                printf '  port: 5432\n'
+                printf '  db: misskey\n'
+                printf '  user: misskey\n'
+                printf '  pass: %s\n' "$(yaml_quote "$DB_PASSWORD")"
+              } >> /config/default.yml
+              chmod 0444 /config/default.yml
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: misskey-postgres
+                  key: password
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 50m
+              memory: 32Mi
+          volumeMounts:
+            - name: misskey-config-source
+              mountPath: /config-source
+              readOnly: true
+            - name: misskey-config
+              mountPath: /config
       containers:
         - name: misskey
           image: docker.io/misskey/misskey:2026.5.3
@@ -52,10 +95,12 @@ spec:
             periodSeconds: 15
           volumeMounts:
             - name: misskey-config
-              mountPath: /misskey/.config
+              mountPath: /misskey/.config/default.yml
               subPath: default.yml
               readOnly: true
       volumes:
+        - name: misskey-config-source
+          configMap:
+            name: misskey-config
         - name: misskey-config
-          secret:
-            secretName: misskey-config
+          emptyDir: {}

@@ -5,6 +5,11 @@ metadata:
   namespace: misskey
 spec:
   instances: 1
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: misskey-postgres-backup-store
   storage:
     size: 5Gi
     storageClass: nfs-homelab
@@ -12,3 +17,45 @@ spec:
     initdb:
       database: misskey
       owner: misskey
+      secret:
+        name: misskey-postgres
+---
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: misskey-postgres-backup-store
+  namespace: misskey
+spec:
+  retentionPolicy: 30d
+  instanceSidecarConfiguration:
+    env:
+      - name: AWS_REQUEST_CHECKSUM_CALCULATION
+        value: when_required
+      - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+        value: when_required
+  configuration:
+    destinationPath: s3://backups-kentaro/
+    endpointURL: https://storage.googleapis.com
+    s3Credentials:
+      accessKeyId:
+        name: misskey-backup
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: misskey-backup
+        key: ACCESS_SECRET_KEY
+    wal:
+      compression: gzip
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: misskey-postgres-daily
+  namespace: misskey
+spec:
+  cluster:
+    name: misskey-postgres
+  schedule: "0 0 3 * * *"
+  backupOwnerReference: self
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io

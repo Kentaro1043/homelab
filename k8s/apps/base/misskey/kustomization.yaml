@@ -10,4 +10,10 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - secrets/misskey-config.enc.yaml
+  - secrets/db.enc.yaml
+  - secrets/backup.enc.yaml
+
+configMapGenerator:
+  - name: misskey-config
+    files:
+      - default.yml=config/default.yml

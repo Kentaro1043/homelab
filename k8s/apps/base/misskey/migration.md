@@ -3,7 +3,9 @@
 移行元 context: `oke`
 移行先 context: `homelab`
 
-homelab の manifest では、CloudNativePG で `misskey-postgres` を作成する。コピー済みの暗号化 `misskey-config` は、Pod 起動時に DB 接続先だけを書き換え、Misskey が `misskey-postgres-rw` に接続するようにしている。Valkey は Flux `HelmRelease` で `misskey-valkey` としてインストールする。
+homelab の manifest では、CloudNativePG で `misskey-postgres` を作成する。Misskey の非機密設定は ConfigMap で管理し、Pod 起動時に暗号化 Secret の DB パスワードを加えて `default.yml` を生成する。Valkey は Flux `HelmRelease` で `misskey-valkey` としてインストールする。
+
+CloudNativePG は Barman Cloud plugin で WAL を継続的にアーカイブし、毎日 03:00 UTC にベースバックアップを取得する。バックアップは 30 日間保持する。
 
 1. 移行元への書き込みを止める。
 
@@ -22,17 +24,17 @@ homelab の manifest では、CloudNativePG で `misskey-postgres` を作成す�
      > misskey.dump
    ```
 
-3. homelab 側の manifest を reconcile または apply し、CloudNativePG が app Secret を作成するまで待つ。
+3. homelab 側の manifest を reconcile または apply し、CloudNativePG の準備が完了するまで待つ。
 
    ```sh
    kubectl --context homelab -n misskey wait cluster/misskey-postgres --for=condition=Ready --timeout=10m
-   kubectl --context homelab -n misskey get secret misskey-postgres-app
+   kubectl --context homelab -n misskey get secret misskey-postgres
    ```
 
 4. homelab 側 PostgreSQL に restore する。
 
    ```sh
-   DB_PASS="$(kubectl --context homelab -n misskey get secret misskey-postgres-app -o jsonpath='{.data.password}' | base64 -d)"
+   DB_PASS="$(kubectl --context homelab -n misskey get secret misskey-postgres -o jsonpath='{.data.password}' | base64 -d)"
 
    kubectl --context homelab -n misskey run pg-restore --rm -i --restart=Never \
      --image=postgres:17 \
@@ -49,4 +51,11 @@ homelab の manifest では、CloudNativePG で `misskey-postgres` を作成す�
    kubectl --context homelab -n misskey scale deployment misskey --replicas=1
    kubectl --context homelab -n misskey rollout status deployment misskey
    kubectl --context homelab -n misskey logs deployment/misskey
+   ```
+
+7. 初回バックアップの完了と WAL アーカイブの状態を確認する。
+
+   ```sh
+   kubectl --context homelab -n misskey get backup
+   kubectl --context homelab -n misskey get cluster misskey-postgres
    ```
