@@ -24,17 +24,17 @@ CloudNativePG は Barman Cloud plugin で WAL を継続的にアーカイブし�
      > misskey.dump
    ```
 
-3. homelab 側の manifest を reconcile または apply し、CloudNativePG の準備が完了するまで待つ。
+3. homelab 側の manifest を reconcile または apply し、CloudNativePG の準備と app Secret の自動生成が完了するまで待つ。
 
    ```sh
    kubectl --context homelab -n misskey wait cluster/misskey-postgres --for=condition=Ready --timeout=10m
-   kubectl --context homelab -n misskey get secret misskey-postgres
+   kubectl --context homelab -n misskey get secret misskey-postgres-app
    ```
 
 4. homelab 側 PostgreSQL に restore する。
 
    ```sh
-   DB_PASS="$(kubectl --context homelab -n misskey get secret misskey-postgres -o jsonpath='{.data.password}' | base64 -d)"
+   DB_PASS="$(kubectl --context homelab -n misskey get secret misskey-postgres-app -o jsonpath='{.data.password}' | base64 -d)"
 
    kubectl --context homelab -n misskey run pg-restore --rm -i --restart=Never \
      --image=postgres:17 \

@@ -17,8 +17,6 @@ spec:
     initdb:
       database: misskey
       owner: misskey
-      secret:
-        name: misskey-postgres
 ---
 apiVersion: barmancloud.cnpg.io/v1
 kind: ObjectStore

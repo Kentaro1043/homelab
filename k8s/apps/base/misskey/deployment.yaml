@@ -48,7 +48,7 @@ spec:
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: misskey-postgres
+                  name: misskey-postgres-app
                   key: password
           resources:
             requests:
