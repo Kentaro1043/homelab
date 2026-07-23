@@ -90,7 +90,7 @@ spec:
               mountPath: /config
       containers:
         - name: invidious
-          image: quay.io/invidious/invidious:latest@sha256:7099e3077ecce323497841cd95a981359e72736fcd3365582badbc8e9b3d1783 # {"$imagepolicy": "invidious:invidious"}
+          image: quay.io/invidious/invidious:2026.07.23-adfec76@sha256:c1e219ec983eca09a722107978f710aa9349a48d7f5c02d670c11772949e6d2c # {"$imagepolicy": "invidious:invidious"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
@@ -138,7 +138,7 @@ spec:
               mountPath: /config
               readOnly: true
         - name: companion
-          image: quay.io/invidious/invidious-companion:latest@sha256:cd5c3dae67bdb025eb5c849963418bbcb3c77d94fd13b8c6a017111a329f6865 # {"$imagepolicy": "invidious:invidious-companion"}
+          image: quay.io/invidious/invidious-companion:2026.07.23-310f4f7@sha256:cd5c3dae67bdb025eb5c849963418bbcb3c77d94fd13b8c6a017111a329f6865 # {"$imagepolicy": "invidious:invidious-companion"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: companion
