@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -22,7 +21,7 @@ spec:
       automountServiceAccountToken: false
       containers:
         - name: rclone
-          image: docker.io/rclone/rclone:1.74.2 # {"$imagepolicy": "jellyfin:rclone-music"}
+          image: docker.io/rclone/rclone:1.74.4 # {"$imagepolicy": "jellyfin:rclone-music"}
           imagePullPolicy: IfNotPresent
           args:
             - serve
