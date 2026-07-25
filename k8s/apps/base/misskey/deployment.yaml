@@ -6,7 +6,7 @@ metadata:
   labels:
     app: misskey
 spec:
-  replicas: 0
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -61,7 +61,7 @@ spec:
               mountPath: /config
       containers:
         - name: misskey
-          image: docker.io/misskey/misskey:2026.5.3
+          image: docker.io/misskey/misskey:2026.6.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

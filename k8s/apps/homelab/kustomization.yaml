@@ -5,6 +5,7 @@ resources:
   - ../base/adguard-home
   - ../base/invidious
   - ../base/jellyfin
+  - ../base/misskey
   - ../base/openclaw
   - ../base/palworld
   - ../base/yattee-server
