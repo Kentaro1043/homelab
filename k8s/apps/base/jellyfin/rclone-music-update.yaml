@@ -2,31 +2,31 @@
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository
 metadata:
-  name: syncthing
+  name: rclone-music
   namespace: jellyfin
 spec:
-  image: docker.io/syncthing/syncthing
+  image: docker.io/rclone/rclone
   interval: 5m
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImagePolicy
 metadata:
-  name: syncthing
+  name: rclone-music
   namespace: jellyfin
 spec:
   imageRepositoryRef:
-    name: syncthing
+    name: rclone-music
   filterTags:
     pattern: '^(?P<version>[0-9]+\.[0-9]+\.[0-9]+)$'
     extract: "$version"
   policy:
     semver:
-      range: ">=2.0.0"
+      range: ">=1.0.0"
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageUpdateAutomation
 metadata:
-  name: syncthing
+  name: rclone-music
   namespace: jellyfin
 spec:
   interval: 5m

@@ -8,7 +8,8 @@ resources:
   - service.yaml
   - ingress.yaml
   - release.yaml
-  - syncthing.yaml
-  - syncthing-ingress.yaml
-  - syncthing-update.yaml
+  - rclone-music.yaml
+  - rclone-music-ingress.yaml
+  - rclone-music-update.yaml
+  - secrets/rclone-music.enc.yaml
   - secrets/ghcr-pull-secret.enc.yaml

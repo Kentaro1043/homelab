@@ -2,10 +2,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: syncthing
+  name: rclone-music
   namespace: jellyfin
   labels:
-    app.kubernetes.io/name: syncthing
+    app.kubernetes.io/name: rclone
+    app.kubernetes.io/component: music
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
@@ -13,30 +14,30 @@ spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - syncthing.internal.kentaro1043.com
-      secretName: syncthing-tls
+        - music-sync.internal.kentaro1043.com
+      secretName: rclone-music-tls
   rules:
-    - host: syncthing.internal.kentaro1043.com
+    - host: music-sync.internal.kentaro1043.com
       http:
         paths:
           - pathType: Prefix
             path: "/"
             backend:
               service:
-                name: syncthing
+                name: rclone-music
                 port:
-                  name: gui
+                  name: http
 ---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: syncthing
+  name: rclone-music
   namespace: jellyfin
 spec:
-  secretName: syncthing-tls
-  commonName: syncthing.internal.kentaro1043.com
+  secretName: rclone-music-tls
+  commonName: music-sync.internal.kentaro1043.com
   dnsNames:
-    - syncthing.internal.kentaro1043.com
+    - music-sync.internal.kentaro1043.com
   issuerRef:
     name: homelab-ca
     kind: ClusterIssuer

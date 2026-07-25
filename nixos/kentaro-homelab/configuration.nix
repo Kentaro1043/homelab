@@ -164,11 +164,8 @@
       8080 #Alt HTTP
       6443 # k3s
       2049 # NFSv4
-      22000 # Syncthing
     ];
     allowedUDPPorts = [
-      21027 # Syncthing local discovery
-      22000 # Syncthing QUIC
       49920 # WireGuard
     ];
   };
