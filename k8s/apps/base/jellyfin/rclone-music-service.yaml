@@ -5,12 +5,12 @@ metadata:
   name: rclone-music
   namespace: jellyfin
   labels:
-    app.kubernetes.io/name: rclone
+    app.kubernetes.io/name: rclone-music
     app.kubernetes.io/component: music
 spec:
   type: ClusterIP
   selector:
-    app.kubernetes.io/name: rclone
+    app.kubernetes.io/name: rclone-music
     app.kubernetes.io/component: music
   ports:
     - name: http
