@@ -52,5 +52,5 @@
 
 ## 他の PVC を同期する
 
-対象 PVC と同じ Namespace に `rclone-music.yaml` 相当の Deployment、Service、Ingress、Secret を追加する。
+対象 PVC と同じ Namespace に `rclone-music-*` 相当の Deployment、Service、Ingress、Secret を追加する。
 Deployment は状態を持たないため、変更が必要なのは PVC 名、公開ホスト名、認証用 Secret のみ。

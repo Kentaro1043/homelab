@@ -20,12 +20,6 @@ spec:
         app.kubernetes.io/component: music
     spec:
       automountServiceAccountToken: false
-      enableServiceLinks: false
-      securityContext:
-        fsGroup: 1000
-        fsGroupChangePolicy: OnRootMismatch
-        seccompProfile:
-          type: RuntimeDefault
       containers:
         - name: rclone
           image: docker.io/rclone/rclone:1.74.2 # {"$imagepolicy": "jellyfin:rclone-music"}
@@ -63,10 +57,6 @@ spec:
               cpu: 200m
               memory: 256Mi
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
@@ -92,22 +82,3 @@ spec:
           persistentVolumeClaim:
             claimName: jellyfin-music
             readOnly: true
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: rclone-music
-  namespace: jellyfin
-  labels:
-    app.kubernetes.io/name: rclone
-    app.kubernetes.io/component: music
-spec:
-  type: ClusterIP
-  selector:
-    app.kubernetes.io/name: rclone
-    app.kubernetes.io/component: music
-  ports:
-    - name: http
-      port: 8080
-      targetPort: http
-      protocol: TCP

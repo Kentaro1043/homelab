@@ -8,7 +8,8 @@ resources:
   - service.yaml
   - ingress.yaml
   - release.yaml
-  - rclone-music.yaml
+  - rclone-music-deployment.yaml
+  - rclone-music-service.yaml
   - rclone-music-ingress.yaml
   - rclone-music-update.yaml
   - secrets/rclone-music.enc.yaml
