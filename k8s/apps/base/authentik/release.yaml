@@ -17,6 +17,7 @@ spec:
   chart:
     spec:
       chart: authentik
+      version: "2026.x"
       sourceRef:
         kind: HelmRepository
         name: authentik

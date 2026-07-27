@@ -17,6 +17,7 @@ spec:
   chart:
     spec:
       chart: valkey
+      version: "0.x"
       sourceRef:
         kind: HelmRepository
         name: valkey

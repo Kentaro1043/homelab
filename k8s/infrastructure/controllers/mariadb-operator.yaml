@@ -23,6 +23,7 @@ spec:
   chart:
     spec:
       chart: mariadb-operator-crds
+      version: "26.x"
       sourceRef:
         kind: HelmRepository
         name: mariadb-operator
@@ -41,6 +42,7 @@ spec:
   chart:
     spec:
       chart: mariadb-operator
+      version: "26.x"
       sourceRef:
         kind: HelmRepository
         name: mariadb-operator
