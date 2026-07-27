@@ -38,8 +38,7 @@ spec:
               mountPath: /font
       containers:
         - name: ai
-          image: ghcr.io/kentaro1043/ai-arm64:latest@sha256:1684f06ddb1f37291668c5e11b8a801af643a68d2dc9192a3859b749b50d09c2
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/kentaro1043/ai-arm64:latest
           resources:
             requests:
               cpu: 10m
