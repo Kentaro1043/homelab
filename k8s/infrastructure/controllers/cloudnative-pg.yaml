@@ -23,7 +23,6 @@ spec:
   chart:
     spec:
       chart: cloudnative-pg
-      version: "0.28.3"
       sourceRef:
         kind: HelmRepository
         name: cloudnative-pg
@@ -39,7 +38,6 @@ spec:
   chart:
     spec:
       chart: plugin-barman-cloud
-      version: "0.7.0"
       sourceRef:
         kind: HelmRepository
         name: cloudnative-pg
