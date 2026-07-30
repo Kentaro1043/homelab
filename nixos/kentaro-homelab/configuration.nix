@@ -131,8 +131,6 @@
     hostName = "kentaro-homelab";
     nameservers = [
       "192.168.1.1"
-      "8.8.8.8"
-      "9.9.9.9"
     ];
     nat = {
       enable = true;
