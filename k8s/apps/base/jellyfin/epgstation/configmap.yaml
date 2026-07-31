@@ -36,13 +36,12 @@ data:
         path: /app/recorded
 
     thumbnail: /app/thumbnail
-    thumbnailCmd: '/bin/cp /app/config/thumbnail.jpg %OUTPUT%'
     dropLog: /app/drop
     isEnabledDropCheck: false
     uploadTempDir: /app/data/upload
 
-    ffmpeg: /usr/bin/false
-    ffprobe: /usr/bin/false
+    ffmpeg: /opt/ffmpeg/ffmpeg
+    ffprobe: /opt/ffmpeg/ffprobe
     encodeProcessNum: 0
     concurrentEncodeNum: 0
     encode: []
@@ -143,5 +142,3 @@ data:
           - stream
           - stdout
         level: info
-binaryData:
-  thumbnail.jpg: /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAC0AUABAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAA/AI+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/Z

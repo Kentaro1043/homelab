@@ -22,6 +22,57 @@ spec:
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
       initContainers:
+        - name: copy-ffmpeg
+          image: docker.io/mwader/static-ffmpeg:8.1.2 # {"$imagepolicy": "jellyfin:epgstation-ffmpeg"}
+          imagePullPolicy: IfNotPresent
+          # scratch イメージのため、data muxer で静的バイナリをそのまま複製する。
+          command:
+            - /ffmpeg
+          args:
+            - -v
+            - error
+            - -y
+            - -f
+            - data
+            - -i
+            - /ffmpeg
+            - -f
+            - data
+            - -i
+            - /ffprobe
+            - -map
+            - "0:0"
+            - -c
+            - copy
+            - -f
+            - data
+            - /tools/ffmpeg
+            - -map
+            - "1:0"
+            - -c
+            - copy
+            - -f
+            - data
+            - /tools/ffprobe
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          volumeMounts:
+            - name: ffmpeg-tools
+              mountPath: /tools
         - name: render-config
           image: docker.io/l3tnun/epgstation:v2.10.0-debian # {"$imagepolicy": "jellyfin:epgstation"}
           imagePullPolicy: IfNotPresent
@@ -41,7 +92,7 @@ spec:
                 /rendered-config/epgUpdaterLogConfig.yml
               cp /config-template/serviceLogConfig.yml \
                 /rendered-config/serviceLogConfig.yml
-              cp /config-template/thumbnail.jpg /rendered-config/thumbnail.jpg
+              chmod 0555 /tools/ffmpeg /tools/ffprobe
           env:
             - name: MARIADB_PASSWORD
               valueFrom:
@@ -56,6 +107,8 @@ spec:
               mountPath: /rendered-config
             - name: data
               mountPath: /state
+            - name: ffmpeg-tools
+              mountPath: /tools
       containers:
         - name: epgstation
           image: docker.io/l3tnun/epgstation:v2.10.0-debian # {"$imagepolicy": "jellyfin:epgstation"}
@@ -113,6 +166,9 @@ spec:
               subPath: drop
             - name: recordings
               mountPath: /app/recorded
+            - name: ffmpeg-tools
+              mountPath: /opt/ffmpeg
+              readOnly: true
       volumes:
         - name: config-template
           configMap:
@@ -125,3 +181,6 @@ spec:
         - name: recordings
           persistentVolumeClaim:
             claimName: tv-recordings
+        - name: ffmpeg-tools
+          emptyDir:
+            sizeLimit: 384Mi
