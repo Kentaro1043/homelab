@@ -90,3 +90,24 @@ nvme0n1     259:0    0 476.9G  0 disk
   --from-file=age.agekey=/dev/stdin
 secret/sops-age created
 ```
+
+## 再起動
+
+```bash
+sudo k3s kubectl drain kentaro-homelab \
+  --ignore-daemonsets \
+  --delete-emptydir-data \
+  --disable-eviction \
+  --timeout=15m
+
+# 何も出力されないことを確認する
+sudo findmnt -rn -t nfs,nfs4
+
+sudo reboot
+```
+
+再起動後にノードを復帰させる。
+
+```bash
+sudo k3s kubectl uncordon kentaro-homelab
+```
