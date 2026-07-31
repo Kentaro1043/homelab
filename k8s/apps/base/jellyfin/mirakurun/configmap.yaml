@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mirakurun-config
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: mirakurun
+data:
+  server.yml: |
+    logLevel: 2
+    path: /var/run/mirakurun.sock
+    port: 40772
+    hostname: mirakurun.internal.kentaro1043.com
+    allowOrigins:
+      - https://mirakurun.internal.kentaro1043.com
+  tuners.yml: |
+    - name: PX-S1UD
+      types:
+        - GR
+      command: >-
+        dvbv5-zap -a 0
+        -c ./config/dvbconf-for-isdb/conf/dvbv5_channels_isdbt.conf
+        -r -P <channel>
+      dvbDevicePath: /dev/dvb/adapter0/dvr0
+      decoder: arib-b25-stream-test
+      isDisabled: false
+  channels.yml: |
+    []

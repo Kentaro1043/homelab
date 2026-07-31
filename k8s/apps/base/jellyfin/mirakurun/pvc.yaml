@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mirakurun-state
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: mirakurun
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-homelab
+  resources:
+    requests:
+      storage: 2Gi

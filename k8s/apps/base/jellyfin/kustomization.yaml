@@ -3,14 +3,10 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - pvc.yaml
-  - deployment.yaml
-  - service.yaml
-  - ingress.yaml
-  - release.yaml
-  - rclone-music-deployment.yaml
-  - rclone-music-service.yaml
-  - rclone-music-ingress.yaml
-  - rclone-music-update.yaml
-  - secrets/rclone-music.enc.yaml
-  - secrets/ghcr-pull-secret.enc.yaml
+  - jellyfin
+  - oh-my-ytdl
+  - rclone-music
+  - mirakurun
+  - epgstation
+  - konomitv
+  - update.yaml

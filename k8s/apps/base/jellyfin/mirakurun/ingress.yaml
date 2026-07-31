@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mirakurun
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: mirakurun
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - mirakurun.internal.kentaro1043.com
+      secretName: mirakurun-tls
+  rules:
+    - host: mirakurun.internal.kentaro1043.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mirakurun
+                port:
+                  name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mirakurun
+  namespace: jellyfin
+spec:
+  secretName: mirakurun-tls
+  commonName: mirakurun.internal.kentaro1043.com
+  dnsNames:
+    - mirakurun.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer

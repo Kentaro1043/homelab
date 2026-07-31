@@ -1,0 +1,147 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: epgstation-config
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: epgstation
+data:
+  config.yml: |
+    port: 8888
+    mirakurunPath: http://mirakurun:40772/
+
+    uid: 1000
+    gid: 1000
+
+    dbtype: mysql
+    mysql:
+      host: epgstation-db
+      port: 3306
+      user: epgstation
+      password: __MARIADB_PASSWORD__
+      database: epgstation
+      charset: utf8mb4
+
+    needToReplaceEnclosingCharacters: true
+    epgUpdateIntervalTime: 10
+
+    conflictPriority: 1
+    recPriority: 2
+    streamingPriority: 0
+
+    recordedFormat: '%YEAR%年%MONTH%月%DAY%日%HOUR%時%MIN%分%SEC%秒-%TITLE%'
+    recordedFileExtension: .ts
+    recorded:
+      - name: recorded
+        path: /app/recorded
+
+    thumbnail: /app/thumbnail
+    thumbnailCmd: '/bin/cp /app/config/thumbnail.jpg %OUTPUT%'
+    dropLog: /app/drop
+    isEnabledDropCheck: false
+    uploadTempDir: /app/data/upload
+
+    ffmpeg: /usr/bin/false
+    ffprobe: /usr/bin/false
+    encodeProcessNum: 0
+    concurrentEncodeNum: 0
+    encode: []
+  operatorLogConfig.yml: |
+    appenders:
+      system:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%OperatorSystem%"
+      access:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%OperatorAccess%"
+      stream:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%OperatorStream%"
+      stdout:
+        type: stdout
+    categories:
+      default:
+        appenders:
+          - stdout
+        level: info
+      system:
+        appenders:
+          - system
+          - stdout
+        level: info
+      access:
+        appenders:
+          - access
+          - stdout
+        level: info
+      stream:
+        appenders:
+          - stream
+          - stdout
+        level: info
+  epgUpdaterLogConfig.yml: |
+    appenders:
+      system:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%EPGUpdaterSystem%"
+      stdout:
+        type: stdout
+    categories:
+      default:
+        appenders:
+          - stdout
+        level: info
+      system:
+        appenders:
+          - system
+          - stdout
+        level: info
+  serviceLogConfig.yml: |
+    appenders:
+      system:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%ServiceSystem%"
+      access:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%ServiceAccess%"
+      stream:
+        type: file
+        maxLogSize: 1048576
+        backups: 3
+        filename: "%ServiceStream%"
+      stdout:
+        type: stdout
+    categories:
+      default:
+        appenders:
+          - stdout
+        level: info
+      system:
+        appenders:
+          - system
+          - stdout
+        level: info
+      access:
+        appenders:
+          - access
+          - stdout
+        level: info
+      stream:
+        appenders:
+          - stream
+          - stdout
+        level: info
+binaryData:
+  thumbnail.jpg: /9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAC0AUABAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAA/AI+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/Z

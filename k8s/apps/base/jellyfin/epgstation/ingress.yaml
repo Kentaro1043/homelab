@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: epgstation
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: epgstation
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - epgstation.internal.kentaro1043.com
+      secretName: epgstation-tls
+  rules:
+    - host: epgstation.internal.kentaro1043.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: epgstation
+                port:
+                  name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: epgstation
+  namespace: jellyfin
+spec:
+  secretName: epgstation-tls
+  commonName: epgstation.internal.kentaro1043.com
+  dnsNames:
+    - epgstation.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer

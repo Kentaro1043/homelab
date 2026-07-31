@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: oh-my-ytdl-data
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: oh-my-ytdl
+    app.kubernetes.io/component: data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-homelab
+  resources:
+    requests:
+      storage: 5Gi

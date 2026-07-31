@@ -5,10 +5,10 @@
 
 ## ローカル PC の設定
 
-1. `k8s/apps/base/jellyfin/secrets/rclone-music.enc.yaml` を SOPS で復号し、認証情報を確認する。
+1. `k8s/apps/base/jellyfin/rclone-music/secrets/rclone-music.enc.yaml` を SOPS で復号し、認証情報を確認する。
 
    ```shell
-   sops --decrypt k8s/apps/base/jellyfin/secrets/rclone-music.enc.yaml
+   sops --decrypt k8s/apps/base/jellyfin/rclone-music/secrets/rclone-music.enc.yaml
    ```
 
    SOPS の秘密鍵がない PC では、Flux の反映後にクラスタから取得できる。

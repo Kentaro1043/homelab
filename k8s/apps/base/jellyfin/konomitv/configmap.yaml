@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: konomitv-config
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: konomitv
+data:
+  config.yaml: |
+    general:
+      backend: Mirakurun
+      mirakurun_url: http://mirakurun:40772/
+      encoder: FFmpeg
+    server:
+      port: 7000
+      custom_https_certificate: /code/tls/tls.crt
+      custom_https_private_key: /code/tls/tls.key
+    video:
+      recorded_folders:
+        - /media/tv-recordings
+  .dockerenv: ""

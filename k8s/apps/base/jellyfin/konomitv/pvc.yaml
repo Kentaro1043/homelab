@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: konomitv-data
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: konomitv
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-homelab
+  resources:
+    requests:
+      storage: 5Gi

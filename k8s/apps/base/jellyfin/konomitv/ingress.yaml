@@ -1,0 +1,41 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: konomitv
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: konomitv
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - konomitv.internal.kentaro1043.com
+      secretName: konomitv-tls
+  rules:
+    - host: konomitv.internal.kentaro1043.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: konomitv
+                port:
+                  name: https
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: konomitv
+  namespace: jellyfin
+spec:
+  secretName: konomitv-tls
+  commonName: konomitv.internal.kentaro1043.com
+  dnsNames:
+    - konomitv.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer

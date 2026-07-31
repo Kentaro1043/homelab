@@ -1,0 +1,121 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mirakurun
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: mirakurun
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mirakurun
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mirakurun
+    spec:
+      automountServiceAccountToken: false
+      nodeSelector:
+        kubernetes.io/hostname: kentaro-homelab
+      initContainers:
+        - name: initialize-config
+          image: docker.io/chinachu/mirakurun:4.1.3 # {"$imagepolicy": "jellyfin:mirakurun"}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p /state/config /state/data /state/opt
+              for file in server.yml tuners.yml channels.yml; do
+                if [ ! -e "/state/config/${file}" ]; then
+                  cp "/seed/${file}" "/state/config/${file}"
+                fi
+              done
+          volumeMounts:
+            - name: state
+              mountPath: /state
+            - name: config-seed
+              mountPath: /seed
+              readOnly: true
+      containers:
+        - name: mirakurun
+          image: docker.io/chinachu/mirakurun:4.1.3 # {"$imagepolicy": "jellyfin:mirakurun"}
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          env:
+            - name: TZ
+              value: Asia/Tokyo
+            - name: DISABLE_PCSCD
+              value: "0"
+            - name: DISABLE_B25_TEST
+              value: "0"
+          ports:
+            - name: http
+              containerPort: 40772
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /api/status
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 18
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: state
+              mountPath: /app-config
+              subPath: config
+            - name: state
+              mountPath: /app-data
+              subPath: data
+            - name: state
+              mountPath: /opt
+              subPath: opt
+            - name: runtime
+              mountPath: /var/run
+            - name: dvb
+              mountPath: /dev/dvb
+            - name: usb
+              mountPath: /dev/bus/usb
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: mirakurun-state
+        - name: config-seed
+          configMap:
+            name: mirakurun-config
+        - name: runtime
+          emptyDir: {}
+        - name: dvb
+          hostPath:
+            path: /dev/dvb
+            type: Directory
+        - name: usb
+          hostPath:
+            path: /dev/bus/usb
+            type: Directory

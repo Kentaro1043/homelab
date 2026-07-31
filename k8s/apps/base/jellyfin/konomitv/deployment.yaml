@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: konomitv
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: konomitv
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: konomitv
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: konomitv
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: initialize-config
+          image: ghcr.io/tsukumijima/konomitv:v0.14.1 # {"$imagepolicy": "jellyfin:konomitv"}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p /state/data /state/logs
+              if [ ! -e /state/config.yaml ]; then
+                cp /seed/config.yaml /state/config.yaml
+              fi
+          volumeMounts:
+            - name: data
+              mountPath: /state
+            - name: config-seed
+              mountPath: /seed
+              readOnly: true
+      containers:
+        - name: konomitv
+          image: ghcr.io/tsukumijima/konomitv:v0.14.1 # {"$imagepolicy": "jellyfin:konomitv"}
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: https
+              containerPort: 7000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 200m
+              memory: 512Mi
+            limits:
+              cpu: "3"
+              memory: 4Gi
+          startupProbe:
+            tcpSocket:
+              port: https
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: https
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: https
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: data
+              mountPath: /code/config.yaml
+              subPath: config.yaml
+            - name: data
+              mountPath: /code/server/data
+              subPath: data
+            - name: data
+              mountPath: /code/server/logs
+              subPath: logs
+            - name: recordings
+              mountPath: /host-rootfs/media/tv-recordings
+              readOnly: true
+            - name: tls
+              mountPath: /code/tls
+              readOnly: true
+            - name: docker-environment
+              mountPath: /.dockerenv
+              subPath: .dockerenv
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: konomitv-data
+        - name: config-seed
+          configMap:
+            name: konomitv-config
+            items:
+              - key: config.yaml
+                path: config.yaml
+        - name: recordings
+          persistentVolumeClaim:
+            claimName: tv-recordings
+            readOnly: true
+        - name: tls
+          secret:
+            secretName: konomitv-tls
+        - name: docker-environment
+          configMap:
+            name: konomitv-config
+            items:
+              - key: .dockerenv
+                path: .dockerenv

@@ -88,6 +88,10 @@ spec:
       - name: jellyfin-shows
         persistentVolumeClaim:
           claimName: jellyfin-shows
+      - name: tv-recordings
+        persistentVolumeClaim:
+          claimName: tv-recordings
+          readOnly: true
 
     volumeMounts:
       - name: jellyfin-music
@@ -96,3 +100,6 @@ spec:
         mountPath: /media/books
       - name: jellyfin-shows
         mountPath: /media/shows
+      - name: tv-recordings
+        mountPath: /media/tv-recordings
+        readOnly: true

@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: epgstation
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: epgstation
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: epgstation
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: epgstation
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: render-config
+          image: docker.io/l3tnun/epgstation:v2.10.0-debian # {"$imagepolicy": "jellyfin:epgstation"}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -ec
+          args:
+            - |
+              mkdir -p \
+                /state/data/upload /state/thumbnail /state/logs /state/drop
+              chown -R 1000:1000 /state
+              sed "s|__MARIADB_PASSWORD__|${MARIADB_PASSWORD}|g" \
+                /config-template/config.yml > /rendered-config/config.yml
+              cp /config-template/operatorLogConfig.yml \
+                /rendered-config/operatorLogConfig.yml
+              cp /config-template/epgUpdaterLogConfig.yml \
+                /rendered-config/epgUpdaterLogConfig.yml
+              cp /config-template/serviceLogConfig.yml \
+                /rendered-config/serviceLogConfig.yml
+              cp /config-template/thumbnail.jpg /rendered-config/thumbnail.jpg
+          env:
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: epgstation-mariadb
+                  key: password
+          volumeMounts:
+            - name: config-template
+              mountPath: /config-template
+              readOnly: true
+            - name: rendered-config
+              mountPath: /rendered-config
+            - name: data
+              mountPath: /state
+      containers:
+        - name: epgstation
+          image: docker.io/l3tnun/epgstation:v2.10.0-debian # {"$imagepolicy": "jellyfin:epgstation"}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TZ
+              value: Asia/Tokyo
+          ports:
+            - name: http
+              containerPort: 8888
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          startupProbe:
+            httpGet:
+              path: /api/config
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /api/config
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/config
+              port: http
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: rendered-config
+              mountPath: /app/config
+              readOnly: true
+            - name: data
+              mountPath: /app/data
+              subPath: data
+            - name: data
+              mountPath: /app/thumbnail
+              subPath: thumbnail
+            - name: data
+              mountPath: /app/logs
+              subPath: logs
+            - name: data
+              mountPath: /app/drop
+              subPath: drop
+            - name: recordings
+              mountPath: /app/recorded
+      volumes:
+        - name: config-template
+          configMap:
+            name: epgstation-config
+        - name: rendered-config
+          emptyDir: {}
+        - name: data
+          persistentVolumeClaim:
+            claimName: epgstation-data
+        - name: recordings
+          persistentVolumeClaim:
+            claimName: tv-recordings
