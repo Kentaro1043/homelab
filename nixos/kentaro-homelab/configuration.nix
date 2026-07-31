@@ -105,8 +105,10 @@
       # k3s
       "/var/lib/rancher/k3s"
       "/etc/rancher/k3s"
+      "/etc/rancher/node"
 
       # NFS
+      "/var/lib/nfs"
       "/srv/nfs/kubernetes"
     ];
     files = [
