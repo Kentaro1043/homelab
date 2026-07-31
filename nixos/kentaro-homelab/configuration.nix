@@ -108,10 +108,14 @@
       "/etc/rancher/node"
 
       # NFS
-      "/var/lib/nfs"
+      "/var/lib/nfs/nfsdcld"
+      "/var/lib/nfs/sm"
+      "/var/lib/nfs/sm.bak"
+      "/var/lib/nfs/v4recovery"
       "/srv/nfs/kubernetes"
     ];
     files = [
+      "/var/lib/nfs/state"
       "/etc/machine-id"
       "/etc/ssh/ssh_host_ed25519_key"
       "/etc/ssh/ssh_host_ed25519_key.pub"
