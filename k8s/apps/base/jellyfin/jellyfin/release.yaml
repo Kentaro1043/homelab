@@ -33,6 +33,7 @@ spec:
       limits:
         cpu: "1"
         memory: "1Gi"
+        devices.kentaro1043.com/render: "1"
 
     livenessProbe:
       httpGet:
@@ -82,10 +83,6 @@ spec:
         enabled: false
 
     volumes:
-      - name: dri
-        hostPath:
-          path: /dev/dri
-          type: Directory
       - name: jellyfin-music
         persistentVolumeClaim:
           claimName: jellyfin-music
@@ -101,8 +98,6 @@ spec:
           readOnly: true
 
     volumeMounts:
-      - name: dri
-        mountPath: /dev/dri
       - name: jellyfin-music
         mountPath: /media/music
       - name: jellyfin-books

@@ -16,3 +16,5 @@ resources:
   - traefik.yaml
 
   - local-path.yaml
+
+  - generic-device-plugin.yaml
