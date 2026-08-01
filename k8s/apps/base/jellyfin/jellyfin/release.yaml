@@ -55,6 +55,9 @@ spec:
     podSecurityContext:
       fsGroup: 1000
       fsGroupChangePolicy: OnRootMismatch
+      supplementalGroups:
+        - 26 # Host video group
+        - 303 # Host render group
 
     securityContext:
       runAsUser: 1000
@@ -79,6 +82,10 @@ spec:
         enabled: false
 
     volumes:
+      - name: dri
+        hostPath:
+          path: /dev/dri
+          type: Directory
       - name: jellyfin-music
         persistentVolumeClaim:
           claimName: jellyfin-music
@@ -94,6 +101,8 @@ spec:
           readOnly: true
 
     volumeMounts:
+      - name: dri
+        mountPath: /dev/dri
       - name: jellyfin-music
         mountPath: /media/music
       - name: jellyfin-books
