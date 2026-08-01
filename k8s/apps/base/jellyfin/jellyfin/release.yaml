@@ -26,6 +26,9 @@ spec:
   values:
     replicaCount: 1
 
+    deploymentStrategy:
+      type: Recreate
+
     resources:
       requests:
         cpu: "100m"
