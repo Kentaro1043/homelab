@@ -7,4 +7,8 @@ resources:
   - deployment.yaml
   - service.yaml
   - ingress.yaml
+  - external-service.yaml
+  - external-ingress.yaml
+  - external-traefik.yaml
+  - secrets/basic-auth.enc.yaml
   - update.yaml

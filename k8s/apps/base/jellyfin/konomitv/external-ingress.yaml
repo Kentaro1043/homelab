@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: konomitv-external
+  namespace: jellyfin
+  labels:
+    app.kubernetes.io/name: konomitv
+    app.kubernetes.io/component: external-ingress
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+    - host: konomitv.kentaro1043.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: konomitv-traefik
+                port:
+                  name: http
