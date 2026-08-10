@@ -12,6 +12,11 @@ in {
     wantedBy = ["multi-user.target"];
     wants = ["network-online.target"];
     after = ["network-online.target"];
+    path = with pkgs; [
+      git
+      nodejs
+      uv
+    ];
     unitConfig.RequiresMountsFor = ["/home/kentaro/.codex"];
 
     environment = {
