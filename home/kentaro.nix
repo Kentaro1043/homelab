@@ -22,6 +22,9 @@
     git = {
       enable = true;
       package = null;
+      ignores = [
+        ".serena/"
+      ];
       settings = {
         user = {
           email = "71170923+Kentaro1043@users.noreply.github.com";
