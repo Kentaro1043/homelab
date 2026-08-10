@@ -56,6 +56,7 @@
       default = pkgs.mkShell {
         packages = [
           pkgs.fluxcd
+          pkgs.nixd
           deploy-rs.packages.${system}.deploy-rs
         ];
       };
