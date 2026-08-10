@@ -43,6 +43,20 @@
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
   };
+  environment.systemPackages = with pkgs; [
+    git
+    ripgrep
+    curl
+    jq
+    yq-go
+    nodejs
+    pnpm
+    uv
+    go
+    kubectl
+    sops
+    age
+  ];
 
   # Boot
   boot.loader.systemd-boot.enable = true;
@@ -137,6 +151,9 @@
           mode = "0700";
         }
         "Documents"
+      ];
+      files = [
+        ".bash_history"
       ];
     };
   };
