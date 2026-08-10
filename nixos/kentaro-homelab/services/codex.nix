@@ -13,6 +13,7 @@ in {
     wants = ["network-online.target"];
     after = ["network-online.target"];
     path = with pkgs; [
+      bash
       git
       nodejs
       uv
