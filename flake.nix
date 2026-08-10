@@ -24,6 +24,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    codex-skills = {
+      url = "github:openai/skills";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -70,6 +74,7 @@
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;
+              extraSpecialArgs = {inherit inputs;};
               users.kentaro = import ./home/kentaro.nix;
             };
           }

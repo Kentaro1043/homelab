@@ -1,4 +1,16 @@
-{lib, ...}: {
+{
+  inputs,
+  lib,
+  ...
+}: let
+  skillNames = [
+    "gh-address-comments"
+    "gh-fix-ci"
+    "pdf"
+    "security-best-practices"
+    "security-threat-model"
+  ];
+in {
   home = {
     username = "kentaro";
     homeDirectory = "/home/kentaro";
@@ -40,6 +52,15 @@
       enableBashIntegration = true;
     };
   };
+
+  home.file = lib.listToAttrs (
+    map (name:
+      lib.nameValuePair ".codex/skills/${name}" {
+        source = inputs.codex-skills + "/skills/.curated/${name}";
+        force = true;
+      })
+    skillNames
+  );
 
   home.activation.setupCodexConfig = lib.hm.dag.entryAfter ["writeBoundary"] ''
     $DRY_RUN_CMD mkdir -p $HOME/.codex

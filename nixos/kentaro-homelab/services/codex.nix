@@ -4,20 +4,35 @@
   ...
 }: let
   codex = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex;
+  codexPython = pkgs.python3.withPackages (pythonPackages:
+    with pythonPackages; [
+      pdfplumber
+      pypdf
+      reportlab
+    ]);
+  codexTools = with pkgs; [
+    bash
+    gh
+    git
+    nodejs
+    poppler-utils
+    uv
+    codexPython
+  ];
 in {
-  environment.systemPackages = [codex];
+  environment.systemPackages = [
+    codex
+    codexPython
+    pkgs.gh
+    pkgs.poppler-utils
+  ];
 
   systemd.services.codex-app-server = {
     description = "Codex App Server with Remote Control";
     wantedBy = ["multi-user.target"];
     wants = ["network-online.target"];
     after = ["network-online.target"];
-    path = with pkgs; [
-      bash
-      git
-      nodejs
-      uv
-    ];
+    path = codexTools;
     unitConfig.RequiresMountsFor = ["/home/kentaro/.codex"];
 
     environment = {
