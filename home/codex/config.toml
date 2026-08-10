@@ -1,0 +1,63 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+default_permissions = "local-workspace"
+web_search = "live"
+
+[mcp_servers.context7]
+args = ["-y", "@upstash/context7-mcp"]
+command = "npx"
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+
+[mcp_servers.serena]
+command = "uvx"
+args = [
+  "--from",
+  "git+https://github.com/oraios/serena",
+  "serena",
+  "start-mcp-server",
+  "--context",
+  "codex",
+  "--project-from-cwd",
+  "--enable-web-dashboard",
+  "false",
+]
+startup_timeout_sec = 30
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"
+
+[permissions.local-workspace]
+description = "Workspace access plus common local tool caches."
+extends = ":workspace"
+
+[permissions.local-workspace.filesystem]
+"/nix/store" = "read"
+"~/.cache/nix" = "write"
+"~/.cache/uv" = "write"
+"~/.codex/skills" = "read"
+"~/.local/share/uv" = "write"
+"~/.local/state/uv" = "write"
+"~/.ssh/conf.d" = "read"
+"~/.ssh/config" = "read"
+":slash_tmp" = "write"
+":tmpdir" = "write"
+
+[permissions.local-workspace.network]
+enabled = true
+
+[tui]
+notifications = ["agent-turn-complete", "approval-requested"]
+notification_method = "auto"
+notification_condition = "unfocused"
+status_line = [
+  "model-with-reasoning",
+  "context-remaining",
+  "project-root",
+  "git-branch",
+  "five-hour-limit",
+  "weekly-limit",
+]
