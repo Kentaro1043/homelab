@@ -5,6 +5,8 @@
 }: let
   codex = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex;
 in {
+  environment.systemPackages = [codex];
+
   systemd.services.codex-app-server = {
     description = "Codex App Server with Remote Control";
     wantedBy = ["multi-user.target"];
