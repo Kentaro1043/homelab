@@ -9,6 +9,7 @@
     "pdf"
     "security-best-practices"
     "security-threat-model"
+    "yeet"
   ];
 in {
   home = {
