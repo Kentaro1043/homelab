@@ -1,4 +1,4 @@
-{...}: {
+{config, ...}: {
   sops = {
     defaultSopsFile = ../../../secrets/kentaro-homelab.enc.yaml;
     age = {
@@ -16,11 +16,14 @@
         mode = "0640";
       };
       k3s-token = {};
-      codex-grafana-trap-authorization = {
-        owner = "kentaro";
-        mode = "0400";
-        restartUnits = ["codex-app-server.service"];
-      };
+      codex-grafana-trap-authorization = {};
+    };
+
+    templates."codex-grafana-trap.env" = {
+      content = ''
+        CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION=${config.sops.placeholder.codex-grafana-trap-authorization}
+      '';
+      restartUnits = ["codex-app-server.service"];
     };
   };
 }
