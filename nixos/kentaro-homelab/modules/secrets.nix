@@ -16,6 +16,11 @@
         mode = "0640";
       };
       k3s-token = {};
+      codex-grafana-trap-authorization = {
+        owner = "kentaro";
+        mode = "0400";
+        restartUnits = ["codex-app-server.service"];
+      };
     };
   };
 }

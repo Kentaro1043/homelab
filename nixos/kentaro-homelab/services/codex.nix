@@ -1,9 +1,22 @@
 {
+  config,
   inputs,
+  lib,
   pkgs,
   ...
 }: let
-  codex = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex;
+  grafanaTrapAuthorization =
+    config.sops.secrets.codex-grafana-trap-authorization.path;
+  codexUnwrapped = inputs.llm-agents.packages.${pkgs.stdenv.hostPlatform.system}.codex;
+  codex =
+    pkgs.runCommand "codex-with-grafana-trap-auth" {
+      nativeBuildInputs = [pkgs.makeWrapper];
+      meta.mainProgram = "codex";
+    } ''
+      mkdir -p $out/bin
+      makeWrapper ${lib.getExe codexUnwrapped} $out/bin/codex \
+        --run 'if [ -r "${grafanaTrapAuthorization}" ]; then export CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION="$(cat "${grafanaTrapAuthorization}")"; fi'
+    '';
   codexPython = pkgs.python3.withPackages (pythonPackages:
     with pythonPackages; [
       pdfplumber
