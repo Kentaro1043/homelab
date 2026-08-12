@@ -65,6 +65,9 @@
       "allowFrom": ["766615423453364234"]
     }
   },
+  "skills": {
+    "allowBundled": ["weather"]
+  },
   "plugins": {
     "entries": {
       "codex": {
