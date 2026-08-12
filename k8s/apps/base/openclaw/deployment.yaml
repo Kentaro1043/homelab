@@ -107,10 +107,10 @@ spec:
                 name: openclaw-secrets
           resources:
             requests:
-              memory: 512Mi
+              memory: 1Gi
               cpu: 250m
             limits:
-              memory: 2Gi
+              memory: 3Gi
               cpu: "1"
           livenessProbe:
             exec:

@@ -26,10 +26,10 @@ spec:
     resources:
       limits:
         cpu: "100m"
-        memory: 128Mi
+        memory: 256Mi
       requests:
         cpu: "50m"
-        memory: 64Mi
+        memory: 128Mi
     dataStorage:
       enabled: true
       requestedSize: 1Gi
