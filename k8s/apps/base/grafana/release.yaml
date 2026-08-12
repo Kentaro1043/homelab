@@ -1,0 +1,541 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: HelmRepository
+metadata:
+  name: grafana
+  namespace: grafana
+spec:
+  interval: 24h
+  url: https://grafana.github.io/helm-charts
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: alloy
+  namespace: grafana
+spec:
+  interval: 12h
+  chart:
+    spec:
+      chart: alloy
+      version: "1.11.x"
+      sourceRef:
+        kind: HelmRepository
+        name: grafana
+        namespace: grafana
+  values:
+    crds:
+      create: false
+
+    alloy:
+      configMap:
+        content: |-
+          logging {
+            level  = "info"
+            format = "logfmt"
+          }
+
+          prometheus.remote_write "grafana_cloud" {
+            external_labels = {
+              cluster = "homelab",
+              node    = sys.env("HOSTNAME"),
+            }
+
+            endpoint {
+              url = sys.env("GRAFANA_CLOUD_METRICS_URL")
+
+              basic_auth {
+                username = sys.env("GRAFANA_CLOUD_METRICS_USERNAME")
+                password = sys.env("GRAFANA_CLOUD_API_TOKEN")
+              }
+
+              queue_config {
+                capacity             = 2500
+                max_shards           = 2
+                max_samples_per_send = 1000
+              }
+            }
+
+            wal {
+              max_keepalive_time = "2h"
+            }
+          }
+
+          prometheus.exporter.unix "node" {
+            procfs_path = "/host/proc"
+            sysfs_path  = "/host/sys"
+            rootfs_path = "/host/root"
+
+            set_collectors = [
+              "conntrack",
+              "cpu",
+              "diskstats",
+              "filefd",
+              "filesystem",
+              "hwmon",
+              "loadavg",
+              "meminfo",
+              "netclass",
+              "netdev",
+              "netstat",
+              "nfsd",
+              "nvme",
+              "os",
+              "pressure",
+              "time",
+              "timex",
+              "uname",
+              "vmstat",
+            ]
+          }
+
+          prometheus.scrape "node" {
+            targets         = prometheus.exporter.unix.node.targets
+            scrape_interval = "60s"
+            job_name        = "integrations/node_exporter"
+            forward_to      = [prometheus.relabel.node.receiver]
+          }
+
+          // Keep the embedded exporter labels aligned with the Kubernetes
+          // Monitoring node-exporter integration.
+          prometheus.relabel "node" {
+            forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+            rule {
+              replacement  = sys.env("HOSTNAME")
+              target_label = "nodename"
+            }
+
+            rule {
+              replacement  = sys.env("HOSTNAME")
+              target_label = "instance"
+            }
+
+            rule {
+              replacement  = "kubernetes"
+              target_label = "source"
+            }
+          }
+
+          prometheus.exporter.self "alloy" {}
+
+          prometheus.scrape "alloy" {
+            targets         = prometheus.exporter.self.alloy.targets
+            scrape_interval = "60s"
+            forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+          }
+
+          discovery.kubernetes "kube_state_metrics" {
+            role = "pod"
+
+            namespaces {
+              names = ["grafana"]
+            }
+
+            selectors {
+              role  = "pod"
+              field = "spec.nodeName=" + sys.env("HOSTNAME")
+              label = "app.kubernetes.io/name=kube-state-metrics"
+            }
+          }
+
+          discovery.relabel "kube_state_metrics" {
+            targets = discovery.kubernetes.kube_state_metrics.targets
+
+            rule {
+              source_labels = ["__meta_kubernetes_pod_container_port_name"]
+              regex         = "http-metrics"
+              action        = "keep"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_pod_name"]
+              target_label  = "instance"
+            }
+
+            rule {
+              replacement  = "kubernetes"
+              target_label = "source"
+            }
+          }
+
+          prometheus.scrape "kube_state_metrics" {
+            targets         = discovery.relabel.kube_state_metrics.output
+            scrape_interval = "60s"
+            job_name        = "integrations/kubernetes/kube-state-metrics"
+            forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+          }
+
+          discovery.kubernetes "local_node" {
+            role = "node"
+
+            selectors {
+              role  = "node"
+              field = "metadata.name=" + sys.env("HOSTNAME")
+            }
+          }
+
+          discovery.relabel "kubelet" {
+            targets = discovery.kubernetes.local_node.targets
+
+            rule {
+              target_label = "__address__"
+              replacement  = "kubernetes.default.svc:443"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_node_name"]
+              target_label  = "__metrics_path__"
+              replacement   = "/api/v1/nodes/$1/proxy/metrics"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_node_name"]
+              target_label  = "instance"
+            }
+          }
+
+          prometheus.scrape "kubelet" {
+            targets           = discovery.relabel.kubelet.output
+            scheme            = "https"
+            scrape_interval   = "60s"
+            job_name          = "integrations/kubernetes/kubelet"
+            bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            forward_to        = [prometheus.relabel.kubelet.receiver]
+
+            tls_config {
+              ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+              server_name = "kubernetes.default.svc"
+            }
+          }
+
+          prometheus.relabel "kubelet" {
+            forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+            rule {
+              source_labels = ["__name__"]
+              regex         = "up|scrape_samples_scraped|go_goroutines|kubelet_certificate_manager_client_expiration_renew_errors|kubelet_certificate_manager_client_ttl_seconds|kubelet_certificate_manager_server_ttl_seconds|kubelet_cgroup_manager_duration_seconds_(bucket|count)|kubelet_node_config_error|kubelet_node_name|kubelet_pleg_relist_duration_seconds_(bucket|count)|kubelet_pleg_relist_interval_seconds_bucket|kubelet_pod_start_duration_seconds_(bucket|count|sum)|kubelet_pod_worker_duration_seconds_(bucket|count)|kubelet_running_(container_count|containers|pod_count|pods)|kubelet_runtime_operations_(errors_)?total|kubelet_server_expiration_renew_errors|kubelet_volume_stats_(available|capacity|used)_bytes|kubelet_volume_stats_inodes(_free|_used)?|kubernetes_build_info|namespace_workload_pod|process_cpu_seconds_total|process_resident_memory_bytes|rest_client_requests_total|storage_operation_duration_seconds_count|storage_operation_errors_total|volume_manager_total_volumes"
+              action        = "keep"
+            }
+          }
+
+          discovery.relabel "kubelet_resource" {
+            targets = discovery.kubernetes.local_node.targets
+
+            rule {
+              target_label = "__address__"
+              replacement  = "kubernetes.default.svc:443"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_node_name"]
+              target_label  = "__metrics_path__"
+              replacement   = "/api/v1/nodes/$1/proxy/metrics/resource"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_node_name"]
+              target_label  = "instance"
+            }
+          }
+
+          prometheus.scrape "kubelet_resource" {
+            targets           = discovery.relabel.kubelet_resource.output
+            scheme            = "https"
+            scrape_interval   = "60s"
+            job_name          = "integrations/kubernetes/resources"
+            bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            forward_to        = [prometheus.relabel.kubelet_resource.receiver]
+
+            tls_config {
+              ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+              server_name = "kubernetes.default.svc"
+            }
+          }
+
+          prometheus.relabel "kubelet_resource" {
+            forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+            rule {
+              source_labels = ["__name__"]
+              regex         = "up|scrape_samples_scraped|node_cpu_usage_seconds_total|node_memory_working_set_bytes"
+              action        = "keep"
+            }
+          }
+
+          discovery.relabel "cadvisor" {
+            targets = discovery.kubernetes.local_node.targets
+
+            rule {
+              target_label = "__address__"
+              replacement  = "kubernetes.default.svc:443"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_node_name"]
+              target_label  = "__metrics_path__"
+              replacement   = "/api/v1/nodes/$1/proxy/metrics/cadvisor"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_node_name"]
+              target_label  = "instance"
+            }
+          }
+
+          prometheus.scrape "cadvisor" {
+            targets           = discovery.relabel.cadvisor.output
+            scheme            = "https"
+            scrape_interval   = "60s"
+            job_name          = "integrations/kubernetes/cadvisor"
+            bearer_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+            forward_to        = [prometheus.relabel.cadvisor.receiver]
+
+            tls_config {
+              ca_file     = "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
+              server_name = "kubernetes.default.svc"
+            }
+          }
+
+          prometheus.relabel "cadvisor" {
+            forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+            rule {
+              source_labels = ["__name__"]
+              regex         = "up|scrape_samples_scraped|container_cpu_(cfs_periods_total|cfs_throttled_periods_total|cfs_throttled_seconds_total|usage_seconds_total)|container_fs_(reads|writes)(_bytes)?_total|container_memory_(cache|rss|swap|usage_bytes|working_set_bytes)|container_network_(receive|transmit)_(bytes|errors|packets|packets_dropped)_total|container_(oom_events_total|last_seen|start_time_seconds)|machine_(cpu_cores|memory_bytes)"
+              action        = "keep"
+            }
+
+            rule {
+              source_labels = ["__name__", "container"]
+              separator     = "@"
+              regex         = "(container_cpu_.*|container_fs_.*|container_memory_.*)@"
+              action        = "drop"
+            }
+
+            rule {
+              source_labels = ["__name__", "image"]
+              separator     = "@"
+              regex         = "(container_cpu_.*|container_fs_.*|container_memory_.*|container_network_.*)@"
+              action        = "drop"
+            }
+          }
+
+          loki.write "grafana_cloud" {
+            endpoint {
+              url = sys.env("GRAFANA_CLOUD_LOGS_URL")
+
+              basic_auth {
+                username = sys.env("GRAFANA_CLOUD_LOGS_USERNAME")
+                password = sys.env("GRAFANA_CLOUD_API_TOKEN")
+              }
+            }
+          }
+
+          discovery.kubernetes "local_pods" {
+            role = "pod"
+
+            selectors {
+              role  = "pod"
+              field = "spec.nodeName=" + sys.env("HOSTNAME")
+            }
+          }
+
+          discovery.relabel "pod_logs" {
+            targets = discovery.kubernetes.local_pods.targets
+
+            rule {
+              source_labels = ["__meta_kubernetes_namespace"]
+              target_label  = "namespace"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_pod_name"]
+              target_label  = "pod"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_pod_container_name"]
+              target_label  = "container"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+              target_label  = "app"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+              separator     = "/"
+              target_label  = "job"
+            }
+
+            rule {
+              source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+              separator     = "/"
+              target_label  = "__path__"
+              replacement   = "/var/log/pods/*$1/*.log"
+            }
+
+            rule {
+              target_label = "cluster"
+              replacement  = "homelab"
+            }
+
+            rule {
+              target_label = "node"
+              replacement  = sys.env("HOSTNAME")
+            }
+
+            // A Pod container with multiple declared ports is discovered more
+            // than once. Drop discovery-only labels after building the log
+            // labels so local.file_match can collapse identical file targets.
+            rule {
+              action = "labeldrop"
+              regex  = "__meta_kubernetes_.*|__address__"
+            }
+          }
+
+          local.file_match "pod_logs" {
+            path_targets = discovery.relabel.pod_logs.output
+          }
+
+          loki.source.file "pod_logs" {
+            targets    = local.file_match.pod_logs.targets
+            forward_to = [loki.process.pod_logs.receiver]
+          }
+
+          loki.process "pod_logs" {
+            stage.cri {}
+            forward_to = [loki.write.grafana_cloud.receiver]
+          }
+
+          loki.relabel "k3s_journal" {
+            forward_to = []
+
+            rule {
+              source_labels = ["__journal_priority_keyword"]
+              target_label  = "level"
+            }
+
+            rule {
+              source_labels = ["__journal__systemd_unit"]
+              target_label  = "unit"
+            }
+          }
+
+          loki.source.journal "k3s" {
+            path          = "/var/log/journal"
+            matches       = "_SYSTEMD_UNIT=k3s.service"
+            max_age       = "6h"
+            relabel_rules = loki.relabel.k3s_journal.rules
+            labels = {
+              cluster = "homelab",
+              job     = "integrations/kubernetes/journal",
+              node    = sys.env("HOSTNAME"),
+              source  = "journal",
+            }
+            forward_to = [loki.write.grafana_cloud.receiver]
+          }
+
+      enableHttpServerPort: false
+      enableReporting: false
+      envFrom:
+        - secretRef:
+            name: grafana-cloud
+      listenAddr: 127.0.0.1
+      mounts:
+        varlog: true
+        extra:
+          - name: storage
+            mountPath: /var/lib/alloy
+          - name: host-root
+            mountPath: /host/root
+            mountPropagation: HostToContainer
+            readOnly: true
+          - name: host-proc
+            mountPath: /host/proc
+            readOnly: true
+          - name: host-sys
+            mountPath: /host/sys
+            readOnly: true
+          - name: machine-id
+            mountPath: /etc/machine-id
+            readOnly: true
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 500m
+          memory: 384Mi
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        seccompProfile:
+          type: RuntimeDefault
+      storagePath: /var/lib/alloy
+
+    configReloader:
+      enabled: false
+
+    controller:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: true
+      tolerations:
+        - effect: NoSchedule
+          operator: Exists
+      volumes:
+        extra:
+          - name: storage
+            hostPath:
+              path: /var/lib/alloy
+              type: DirectoryOrCreate
+          - name: host-root
+            hostPath:
+              path: /
+              type: Directory
+          - name: host-proc
+            hostPath:
+              path: /proc
+              type: Directory
+          - name: host-sys
+            hostPath:
+              path: /sys
+              type: Directory
+          - name: machine-id
+            hostPath:
+              path: /etc/machine-id
+              type: File
+
+    rbac:
+      rules:
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+          verbs:
+            - get
+            - list
+            - watch
+      clusterRules:
+        - apiGroups:
+            - ""
+          resources:
+            - nodes
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - nodes/metrics
+            - nodes/proxy
+          verbs:
+            - get
+
+    service:
+      enabled: false

@@ -56,6 +56,7 @@
       "/var/lib/bluetooth"
       "/var/lib/nixos"
       "/var/lib/systemd/coredump"
+      "/var/lib/alloy"
       "/etc/NetworkManager/system-connections"
 
       # k3s
