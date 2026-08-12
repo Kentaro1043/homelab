@@ -149,6 +149,35 @@ spec:
             capabilities:
               drop:
                 - ALL
+        - name: grafana-cloud-mcp
+          image: grafana/mcp-grafana:1.0.0 # {"$imagepolicy": "openclaw:grafana-cloud-mcp"}
+          imagePullPolicy: IfNotPresent
+          command:
+            - /app/mcp-grafana
+          args:
+            - --transport
+            - streamable-http
+            - --address
+            - 127.0.0.1:8000
+          envFrom:
+            - secretRef:
+                name: openclaw-grafana-cloud-mcp
+          resources:
+            requests:
+              memory: 64Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: 500m
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
       volumes:
         - name: openclaw-home
           persistentVolumeClaim:

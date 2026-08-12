@@ -10,6 +10,7 @@ resources:
   - ingress.yaml
   - pvc.yaml
   - secrets/openclaw-secrets.enc.yaml
+  - secrets/grafana-cloud-mcp.enc.yaml
   - update.yaml
 
 configMapGenerator:
