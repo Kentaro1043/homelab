@@ -16,7 +16,6 @@ url = "https://mcp.exa.ai/mcp"
 command = "uvx"
 args = ["mcp-grafana"]
 startup_timeout_sec = 60
-default_tools_approval_mode = "writes"
 
 [mcp_servers.grafana-cloud.env]
 GRAFANA_URL = "https://kentaro1043.grafana.net"
