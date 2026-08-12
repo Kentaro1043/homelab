@@ -5,16 +5,5 @@ namespace: openclaw
 
 resources:
   - namespace.yaml
-  - deployment.yaml
   - service.yaml
   - ingress.yaml
-  - pvc.yaml
-  - secrets/openclaw-secrets.enc.yaml
-  - secrets/grafana-cloud-mcp.enc.yaml
-  - update.yaml
-
-configMapGenerator:
-  - name: openclaw-config
-    files:
-      - config/openclaw.json
-      - config/AGENTS.md

@@ -8,10 +8,26 @@ metadata:
     app: openclaw
 spec:
   type: ClusterIP
-  selector:
-    app: openclaw
   ports:
     - name: gateway
       port: 18789
       targetPort: 18789
       protocol: TCP
+---
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: openclaw
+  namespace: openclaw
+  labels:
+    kubernetes.io/service-name: openclaw
+addressType: IPv4
+ports:
+  - name: gateway
+    port: 18789
+    protocol: TCP
+endpoints:
+  - addresses:
+      - 172.17.61.1
+    conditions:
+      ready: true

@@ -89,6 +89,10 @@
           directory = ".codex";
           mode = "0700";
         }
+        {
+          directory = ".openclaw";
+          mode = "0700";
+        }
         "Documents"
       ];
       files = [
