@@ -48,7 +48,7 @@
   "mcp": {
     "servers": {
       "grafana-cloud": {
-        "url": "http://127.0.0.1:8000/",
+        "url": "http://127.0.0.1:8000/mcp",
         "transport": "streamable-http",
         "connectionTimeoutMs": 10000,
         "requestTimeoutMs": 60000,
