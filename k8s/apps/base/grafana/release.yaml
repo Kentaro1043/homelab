@@ -461,6 +461,9 @@ spec:
           - name: machine-id
             mountPath: /etc/machine-id
             readOnly: true
+          - name: udev-data
+            mountPath: /run/udev/data
+            readOnly: true
       resources:
         requests:
           cpu: 50m
@@ -509,6 +512,10 @@ spec:
             hostPath:
               path: /etc/machine-id
               type: File
+          - name: udev-data
+            hostPath:
+              path: /run/udev/data
+              type: Directory
 
     rbac:
       rules:
