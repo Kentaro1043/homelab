@@ -84,6 +84,7 @@ Kubernetes Monitoring用の主要なjobは以下になる。
 | cAdvisor | `integrations/kubernetes/cadvisor` |
 | kube-state-metrics | `integrations/kubernetes/kube-state-metrics` |
 | embedded node exporter | `integrations/node_exporter` |
+| Alloy self-monitoring | `integrations/alloy` |
 | k3s journal | `integrations/kubernetes/journal` |
 
 Grafana Cloud側では[Kubernetes Monitoringを別途有効化](https://grafana.com/docs/grafana-cloud/monitor-infrastructure/kubernetes-monitoring/configuration/activate/)する。

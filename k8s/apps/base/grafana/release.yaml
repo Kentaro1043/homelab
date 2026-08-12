@@ -121,7 +121,18 @@ spec:
           prometheus.scrape "alloy" {
             targets         = prometheus.exporter.self.alloy.targets
             scrape_interval = "60s"
-            forward_to      = [prometheus.remote_write.grafana_cloud.receiver]
+            job_name        = "integrations/alloy"
+            forward_to      = [prometheus.relabel.alloy.receiver]
+          }
+
+          prometheus.relabel "alloy" {
+            forward_to = [prometheus.remote_write.grafana_cloud.receiver]
+
+            rule {
+              source_labels = ["__name__"]
+              regex         = "up|scrape_samples_scraped|alloy_build_info|alloy_component_controller_running_components|go_goroutines|process_cpu_seconds_total|process_resident_memory_bytes|prometheus_remote_storage_enqueue_retries_total|prometheus_remote_storage_samples_(failed_total|pending|retried_total|total)|prometheus_remote_write_wal_storage_active_series|loki_write_(batch_retries_total|dropped_entries_total|sent_entries_total)"
+              action        = "keep"
+            }
           }
 
           discovery.kubernetes "kube_state_metrics" {
