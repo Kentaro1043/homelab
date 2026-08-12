@@ -159,6 +159,9 @@ spec:
             - streamable-http
             - --address
             - 127.0.0.1:8000
+          env:
+            - name: GRAFANA_URL
+              value: https://kentaro1043.grafana.net
           envFrom:
             - secretRef:
                 name: openclaw-grafana-cloud-mcp
