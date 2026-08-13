@@ -1,0 +1,182 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: codex
+  namespace: codex
+  labels:
+    app.kubernetes.io/name: codex
+spec:
+  serviceName: codex
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: codex
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: codex
+    spec:
+      serviceAccountName: codex
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: bootstrap
+          image: ghcr.io/kentaro1043/homelab-codex:main  # {"$imagepolicy": "codex:codex-workspace"}
+          imagePullPolicy: Always
+          command:
+            - bash
+            - -euc
+            - |
+              install -d -m 0700 /state/codex /state/gh
+              install -d -m 0755 /workspace
+              install -m 0600 /bootstrap/config.toml /state/codex/config.toml
+              install -m 0644 /bootstrap/AGENTS.md /state/codex/AGENTS.md
+
+              if [[ ! -d /workspace/homelab/.git ]]; then
+                git clone --filter=blob:none \
+                  https://github.com/Kentaro1043/homelab.git \
+                  /workspace/homelab
+              fi
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+              ephemeral-storage: 128Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+              ephemeral-storage: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: state
+              mountPath: /state
+            - name: workspace
+              mountPath: /workspace
+            - name: config
+              mountPath: /bootstrap
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+      containers:
+        - name: codex
+          image: ghcr.io/kentaro1043/homelab-codex:main  # {"$imagepolicy": "codex:codex-workspace"}
+          imagePullPolicy: Always
+          workingDir: /workspace/homelab
+          command:
+            - bash
+            - -euc
+            - |
+              install -d -m 0700 "${CODEX_HOME}/skills"
+              for skill in /opt/codex-skills/*; do
+                ln -sfn "${skill}" "${CODEX_HOME}/skills/$(basename "${skill}")"
+              done
+              git config --global --add safe.directory /workspace/homelab
+              if gh auth status >/dev/null 2>&1; then
+                gh auth setup-git
+              fi
+              exec codex app-server --remote-control --listen unix://
+          env:
+            - name: HOME
+              value: /home/vscode
+            - name: CODEX_HOME
+              value: /home/vscode/.codex
+            - name: CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION
+              valueFrom:
+                secretKeyRef:
+                  name: codex-mcp-credentials
+                  key: CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION
+          resources:
+            requests:
+              cpu: 500m
+              memory: 2Gi
+              ephemeral-storage: 2Gi
+            limits:
+              cpu: "3"
+              memory: 6Gi
+              ephemeral-storage: 20Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: state
+              mountPath: /home/vscode/.codex
+              subPath: codex
+            - name: state
+              mountPath: /home/vscode/.config/gh
+              subPath: gh
+            - name: workspace
+              mountPath: /workspace
+            - name: cache
+              mountPath: /home/vscode/.cache
+            - name: tmp
+              mountPath: /tmp
+        - name: grafana-cloud-mcp
+          image: docker.io/grafana/mcp-grafana:1.1.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - /app/mcp-grafana
+          args:
+            - --transport
+            - streamable-http
+            - --address
+            - 127.0.0.1:8000
+          env:
+            - name: GRAFANA_URL
+              value: https://kentaro1043.grafana.net
+            - name: GRAFANA_SERVICE_ACCOUNT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: codex-mcp-credentials
+                  key: GRAFANA_SERVICE_ACCOUNT_TOKEN
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+              ephemeral-storage: 32Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+              ephemeral-storage: 256Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      volumes:
+        - name: state
+          persistentVolumeClaim:
+            claimName: codex-state
+        - name: workspace
+          persistentVolumeClaim:
+            claimName: codex-workspace
+        - name: config
+          configMap:
+            name: codex-config
+        - name: cache
+          emptyDir:
+            sizeLimit: 4Gi
+        - name: tmp
+          emptyDir:
+            sizeLimit: 2Gi
