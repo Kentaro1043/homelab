@@ -1,0 +1,21 @@
+{
+  "name": "homelab Codex",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "../.."
+  },
+  "remoteUser": "node",
+  "containerUser": "node",
+  "updateRemoteUserUID": false,
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "containerEnv": {
+    "CODEX_HOME": "/home/node/.codex"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "jnoortheen.nix-ide"
+      ]
+    }
+  }
+}

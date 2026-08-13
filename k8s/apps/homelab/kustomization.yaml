@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../base/ai
   - ../base/adguard-home
+  - ../base/codex
   - ../base/invidious
   - ../base/jellyfin
   - ../base/misskey
