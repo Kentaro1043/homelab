@@ -95,9 +95,9 @@ spec:
               exec codex app-server --remote-control --listen unix://
           env:
             - name: HOME
-              value: /home/vscode
+              value: /home/node
             - name: CODEX_HOME
-              value: /home/vscode/.codex
+              value: /home/node/.codex
             - name: CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION
               valueFrom:
                 secretKeyRef:
@@ -120,15 +120,15 @@ spec:
                 - ALL
           volumeMounts:
             - name: state
-              mountPath: /home/vscode/.codex
+              mountPath: /home/node/.codex
               subPath: codex
             - name: state
-              mountPath: /home/vscode/.config/gh
+              mountPath: /home/node/.config/gh
               subPath: gh
             - name: workspace
               mountPath: /workspace
             - name: cache
-              mountPath: /home/vscode/.cache
+              mountPath: /home/node/.cache
             - name: tmp
               mountPath: /tmp
         - name: grafana-cloud-mcp

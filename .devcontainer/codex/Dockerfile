@@ -51,7 +51,7 @@ RUN uv tool install \
 
 RUN git clone --filter=blob:none https://github.com/openai/skills.git /tmp/codex-skills \
     && git -C /tmp/codex-skills checkout "${CODEX_SKILLS_REVISION}" \
-    && install -d -o vscode -g vscode /opt/codex-skills \
+    && install -d -o node -g node /opt/codex-skills \
     && for skill in \
         gh-address-comments \
         gh-fix-ci \
@@ -61,12 +61,12 @@ RUN git clone --filter=blob:none https://github.com/openai/skills.git /tmp/codex
         yeet; do \
         cp -a "/tmp/codex-skills/skills/.curated/${skill}" /opt/codex-skills/; \
     done \
-    && chown -R vscode:vscode /opt/codex-skills \
+    && chown -R node:node /opt/codex-skills \
     && rm -rf /tmp/codex-skills
 
-RUN install -d -o vscode -g vscode /nix /home/vscode/.config/nix
+RUN install -d -o node -g node /nix /home/node/.config/nix
 
-USER vscode
+USER node
 
 RUN git config --global user.name Kentaro1043 \
     && git config --global user.email 71170923+Kentaro1043@users.noreply.github.com \
@@ -79,9 +79,9 @@ RUN curl --fail --location --silent --show-error \
     && printf '%s\n' \
         'experimental-features = nix-command flakes' \
         'sandbox = false' \
-        > /home/vscode/.config/nix/nix.conf
+        > /home/node/.config/nix/nix.conf
 
-ENV PATH="/home/vscode/.nix-profile/bin:/opt/codex-python/bin:${PATH}"
-ENV CODEX_HOME=/home/vscode/.codex
+ENV PATH="/home/node/.nix-profile/bin:/opt/codex-python/bin:${PATH}"
+ENV CODEX_HOME=/home/node/.codex
 
 WORKDIR /workspace/homelab
