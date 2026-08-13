@@ -3,6 +3,7 @@
     mutableUsers = false; # パスワードを上書きできるように
     users.kentaro = {
       isNormalUser = true;
+      linger = true;
       extraGroups = ["wheel"];
       createHome = true;
       hashedPasswordFile = config.sops.secrets.kentaro-password.path;

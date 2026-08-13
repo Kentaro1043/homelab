@@ -18,3 +18,5 @@ resources:
   - local-path.yaml
 
   - generic-device-plugin.yaml
+
+  - agent-sandbox.yaml

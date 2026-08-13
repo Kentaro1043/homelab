@@ -19,6 +19,9 @@
 
     firewall = {
       enable = true;
+      interfaces.cni0.allowedTCPPorts = [
+        18789 # OpenClaw gateway (Kubernetes ingress -> host)
+      ];
       allowedTCPPorts = [
         22 # SSH
         80 # HTTP

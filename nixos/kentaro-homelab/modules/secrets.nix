@@ -22,6 +22,21 @@
         group = "users";
         mode = "0400";
       };
+      openclaw-gateway-token = {
+        owner = "kentaro";
+        group = "users";
+        mode = "0400";
+      };
+      openclaw-gemini-api-key = {
+        owner = "kentaro";
+        group = "users";
+        mode = "0400";
+      };
+      openclaw-discord-bot-token = {
+        owner = "kentaro";
+        group = "users";
+        mode = "0400";
+      };
     };
 
     templates."codex-grafana-trap.env" = {

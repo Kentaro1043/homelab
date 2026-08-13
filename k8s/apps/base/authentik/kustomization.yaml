@@ -7,4 +7,6 @@ resources:
   - namespace.yaml
   - postgres.yaml
   - release.yaml
+  - openshell-blueprint.yaml
   - secrets/authentik-secrets.enc.yaml
+  - secrets/openshell-oidc.enc.yaml
