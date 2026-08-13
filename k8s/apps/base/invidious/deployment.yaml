@@ -151,11 +151,11 @@ spec:
                   key: companion-key
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
-            limits:
-              cpu: 500m
+              cpu: 50m
               memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 768Mi
           startupProbe:
             httpGet:
               path: /healthz
