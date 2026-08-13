@@ -25,7 +25,7 @@ metadata:
   name: vaultwarden-postgres-backup-store
   namespace: vaultwarden
 spec:
-  retentionPolicy: 30d
+  retentionPolicy: 14d
   instanceSidecarConfiguration:
     env:
       - name: AWS_REQUEST_CHECKSUM_CALCULATION
@@ -35,6 +35,8 @@ spec:
   configuration:
     destinationPath: s3://backups-kentaro/
     endpointURL: https://storage.googleapis.com
+    data:
+      compression: gzip
     s3Credentials:
       accessKeyId:
         name: vaultwarden-postgres-backup-s3-credentials
