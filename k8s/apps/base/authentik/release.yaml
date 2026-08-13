@@ -50,6 +50,22 @@ spec:
             secretKeyRef:
               name: authentik-postgres-app
               key: password
+        - name: OPENCLAW_OPENSHELL_OIDC_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: authentik-openshell-oidc
+              key: OPENCLAW_OPENSHELL_OIDC_CLIENT_SECRET
+
+    volumeMounts:
+      - name: openshell-blueprint
+        mountPath: /blueprints/custom/openshell.yaml
+        subPath: openshell.yaml
+        readOnly: true
+
+    volumes:
+      - name: openshell-blueprint
+        configMap:
+          name: authentik-openshell-blueprint
 
     postgresql:
       enabled: false

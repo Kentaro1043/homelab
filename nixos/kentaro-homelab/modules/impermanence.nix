@@ -93,6 +93,10 @@
           directory = ".openclaw";
           mode = "0700";
         }
+        {
+          directory = ".config/openshell";
+          mode = "0700";
+        }
         "Documents"
       ];
       files = [

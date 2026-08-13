@@ -5,6 +5,10 @@
   pkgs,
   ...
 }: let
+  openshell = import ./openshell.nix {
+    inherit pkgs;
+    homeDirectory = "/home/kentaro";
+  };
   openclawPython = pkgs.python3.withPackages (pythonPackages:
     with pythonPackages; [
       pdfplumber
@@ -65,10 +69,15 @@ in {
 
     openclaw = {
       enable = true;
-      runtimePlugins = ["discord"];
+      runtimePlugins = [
+        "discord"
+        "openshell"
+      ];
       runtimePackages = with pkgs; [
         gh
+        openshell.command
         openclawPython
+        openssh
         poppler-utils
         uv
       ];
@@ -109,6 +118,12 @@ in {
               "google/gemma-4-26b-a4b-it".alias = "gemma-4-26b";
             };
             imageGenerationModel.primary = "openai/gpt-image-2";
+            sandbox = {
+              mode = "all";
+              backend = "openshell";
+              scope = "session";
+              workspaceAccess = "rw";
+            };
           };
           list = [
             {
@@ -120,7 +135,6 @@ in {
           ];
         };
 
-        tools.exec.mode = "auto";
         cron.enabled = true;
 
         channels.discord = {
@@ -144,11 +158,66 @@ in {
         plugins.entries = {
           codex = {
             enabled = true;
-            config.appServer.homeScope = "user";
+            config.appServer = {
+              homeScope = "user";
+              approvalPolicy = "never";
+              approvalsReviewer = "user";
+              sandbox = "read-only";
+            };
           };
           discord.enabled = true;
+          openshell = {
+            enabled = true;
+            config = {
+              command = "${openshell.command}/bin/openshell";
+              from = "ghcr.io/nvidia/openshell-community/sandboxes/base@sha256:aeef1c63f00e2913ea002ccb3aaf925f338b5c5d70e63576f0d95c16a138044e";
+              mode = "remote";
+              gateway = "k3s";
+              gatewayEndpoint = "https://127.0.0.1:17670";
+              autoProviders = false;
+              timeoutSeconds = 180;
+            };
+          };
         };
       };
+    };
+  };
+
+  systemd.user.services = {
+    openclaw-gateway.Unit = {
+      Requires = ["openshell-bootstrap.service"];
+      After = ["openshell-bootstrap.service"];
+    };
+
+    openshell-port-forward = {
+      Unit = {
+        Description = "Forward the local OpenShell gateway to k3s";
+        After = ["network-online.target"];
+        Wants = ["network-online.target"];
+        ConditionPathExists = "/etc/rancher/k3s/k3s.yaml";
+      };
+      Service = {
+        ExecStart = "${pkgs.kubectl}/bin/kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml --namespace openshell port-forward --address 127.0.0.1 service/openshell 17670:8080";
+        Restart = "always";
+        RestartSec = 5;
+      };
+      Install.WantedBy = ["default.target"];
+    };
+
+    openshell-bootstrap = {
+      Unit = {
+        Description = "Bootstrap authenticated OpenShell access";
+        After = ["openshell-port-forward.service"];
+        Requires = ["openshell-port-forward.service"];
+      };
+      Service = {
+        Type = "oneshot";
+        ExecStart = "${openshell.bootstrap}/bin/openshell-bootstrap";
+        RemainAfterExit = true;
+        Restart = "on-failure";
+        RestartSec = 10;
+      };
+      Install.WantedBy = ["default.target"];
     };
   };
 

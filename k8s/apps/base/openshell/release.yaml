@@ -1,0 +1,97 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: openshell
+  namespace: openshell
+spec:
+  interval: 24h
+  url: oci://ghcr.io/nvidia/openshell/helm-chart
+  ref:
+    digest: sha256:84a9954d248625109b8f579476787d6aaf9d3191add573e6cb75d1b9ecba24a3
+  layerSelector:
+    mediaType: application/vnd.cncf.helm.chart.content.v1.tar+gzip
+    operation: copy
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: openshell
+  namespace: openshell
+spec:
+  interval: 12h
+  dependsOn:
+    - name: agent-sandbox
+      namespace: agent-sandbox-system
+  chartRef:
+    kind: OCIRepository
+    name: openshell
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+  values:
+    image:
+      tag: 0.0.104@sha256:77a970f5abcb480de479431488024ab7319b76c37cce622665a6d119eff959b3
+    supervisor:
+      image:
+        tag: 0.0.104@sha256:18e7eb6b00cbff1d1feb45353b41c0918245a6dff8919cd516f9a848cc6ef85f
+      sideloadMethod: init-container
+      topology: sidecar
+      sidecar:
+        processBinaryAwareNetworkPolicy: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: "1"
+        memory: 1Gi
+    podSecurityContext:
+      fsGroup: 1000
+      seccompProfile:
+        type: RuntimeDefault
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      runAsNonRoot: true
+      runAsUser: 1000
+      seccompProfile:
+        type: RuntimeDefault
+    server:
+      telemetryEnabled: false
+      sandboxNamespace: openshell
+      sandboxImage: ghcr.io/nvidia/openshell-community/sandboxes/base@sha256:aeef1c63f00e2913ea002ccb3aaf925f338b5c5d70e63576f0d95c16a138044e
+      sandboxImagePullPolicy: IfNotPresent
+      workspaceDefaultStorageSize: 2Gi
+      workspaceStorageClass: local-path
+      enableUserNamespaces: true
+      appArmorProfile: RuntimeDefault
+      enableLoopbackServiceHttp: false
+      policyValidationFailureMode: fail_closed
+      auth:
+        allowUnauthenticatedUsers: false
+      oidc:
+        issuer: https://auth.kentaro1043.com/application/o/openshell/
+        audience: openshell-cli
+        rolesClaim: ""
+        adminRole: ""
+        userRole: ""
+        scopesClaim: ""
+    networkPolicy:
+      enabled: true
+  postRenderers:
+    - kustomize:
+        patches:
+          - target:
+              group: apps
+              version: v1
+              kind: StatefulSet
+              name: openshell
+            patch: |-
+              - op: add
+                path: /spec/volumeClaimTemplates/0/spec/storageClassName
+                value: local-path
