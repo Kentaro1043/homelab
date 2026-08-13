@@ -2163,88 +2163,6 @@
           }
         }
       },
-      "panel-52": {
-        "kind": "Panel",
-        "spec": {
-          "data": {
-            "kind": "QueryGroup",
-            "spec": {
-              "queries": [
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${datasource}"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "editorMode": "code",
-                        "exemplar": false,
-                        "expr": "kube_pod_info{namespace=\"$namespace\", pod=~\"$pod\", priority_class!=\"\", cluster=\"$cluster\"}",
-                        "format": "time_series",
-                        "instant": true,
-                        "interval": "",
-                        "legendFormat": "{{ priority_class }}",
-                        "range": false
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "A"
-                  }
-                }
-              ],
-              "queryOptions": {},
-              "transformations": []
-            }
-          },
-          "description": "Panel only works when a single pod is selected.",
-          "id": 52,
-          "links": [],
-          "title": "Priority Class",
-          "vizConfig": {
-            "group": "stat",
-            "kind": "VizConfig",
-            "spec": {
-              "fieldConfig": {
-                "defaults": {
-                  "thresholds": {
-                    "mode": "absolute",
-                    "steps": [
-                      {
-                        "color": "rgb(255, 255, 255)",
-                        "value": 0
-                      }
-                    ]
-                  },
-                  "unit": "none"
-                },
-                "overrides": []
-              },
-              "options": {
-                "colorMode": "none",
-                "graphMode": "none",
-                "justifyMode": "auto",
-                "orientation": "auto",
-                "percentChangeColorMode": "standard",
-                "reduceOptions": {
-                  "calcs": [
-                    "mean"
-                  ],
-                  "fields": "",
-                  "values": false
-                },
-                "showPercentChange": false,
-                "textMode": "name",
-                "wideLayout": true
-              }
-            },
-            "version": "12.2.1"
-          }
-        }
-      },
       "panel-53": {
         "kind": "Panel",
         "spec": {
@@ -3320,24 +3238,11 @@
                       "spec": {
                         "element": {
                           "kind": "ElementReference",
-                          "name": "panel-52"
-                        },
-                        "height": 2,
-                        "width": 5,
-                        "x": 0,
-                        "y": 2
-                      }
-                    },
-                    {
-                      "kind": "GridLayoutItem",
-                      "spec": {
-                        "element": {
-                          "kind": "ElementReference",
                           "name": "panel-53"
                         },
                         "height": 2,
-                        "width": 7,
-                        "x": 5,
+                        "width": 12,
+                        "x": 0,
                         "y": 2
                       }
                     },

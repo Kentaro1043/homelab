@@ -625,66 +625,6 @@
                       "group": "prometheus",
                       "kind": "DataQuery",
                       "spec": {
-                        "expr": "sum(kube_deployment_labels{namespace=~\"$namespace\", cluster=\"$cluster\"})",
-                        "interval": "",
-                        "legendFormat": "Deployments"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "D"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${datasource}"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "expr": "sum(kube_statefulset_labels{namespace=~\"$namespace\", cluster=\"$cluster\"})",
-                        "interval": "",
-                        "legendFormat": "Statefulsets"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "E"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${datasource}"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "expr": "sum(kube_daemonset_labels{namespace=~\"$namespace\", cluster=\"$cluster\"})",
-                        "interval": "",
-                        "legendFormat": "Daemonsets"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "F"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${datasource}"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
                         "expr": "sum(kube_persistentvolumeclaim_info{namespace=~\"$namespace\", cluster=\"$cluster\"})",
                         "interval": "",
                         "legendFormat": "Persistent Volume Claims"
@@ -692,26 +632,6 @@
                       "version": "v0"
                     },
                     "refId": "G"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${datasource}"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "expr": "sum(kube_horizontalpodautoscaler_labels{namespace=~\"$namespace\", cluster=\"$cluster\"})",
-                        "interval": "",
-                        "legendFormat": "Horizontal Pod Autoscalers"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "H"
                   }
                 },
                 {
@@ -752,26 +672,6 @@
                       "version": "v0"
                     },
                     "refId": "J"
-                  }
-                },
-                {
-                  "kind": "PanelQuery",
-                  "spec": {
-                    "hidden": false,
-                    "query": {
-                      "datasource": {
-                        "name": "${datasource}"
-                      },
-                      "group": "prometheus",
-                      "kind": "DataQuery",
-                      "spec": {
-                        "expr": "sum(kube_networkpolicy_labels{namespace=~\"$namespace\", cluster=\"$cluster\"})",
-                        "interval": "",
-                        "legendFormat": "Network Policies"
-                      },
-                      "version": "v0"
-                    },
-                    "refId": "K"
                   }
                 }
               ],
