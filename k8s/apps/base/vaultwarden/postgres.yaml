@@ -53,7 +53,7 @@ metadata:
 spec:
   cluster:
     name: vaultwarden-postgres
-  schedule: "0 0 3 * * *"
+  schedule: "0 0 3 * * 0"
   backupOwnerReference: self
   method: plugin
   pluginConfiguration:

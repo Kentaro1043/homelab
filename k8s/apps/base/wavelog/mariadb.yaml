@@ -36,7 +36,7 @@ spec:
 apiVersion: k8s.mariadb.com/v1alpha1
 kind: PhysicalBackup
 metadata:
-  name: wavelog-db-daily
+  name: wavelog-db-weekly
   namespace: wavelog
   labels:
     app.kubernetes.io/name: wavelog
@@ -47,7 +47,7 @@ spec:
     waitForIt: true
   target: PreferReplica
   schedule:
-    cron: "0 3 * * *"
+    cron: "0 3 * * 0"
     suspend: false
   maxRetention: 720h
   compression: gzip
