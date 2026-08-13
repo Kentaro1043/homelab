@@ -18,6 +18,10 @@ Grafana Cloud Kubernetes Monitoringの既定allowlistと、Git Syncダッシュ�
 収集する。`kube-state-metrics` は必要なresourceとmetricだけを有効にした単一Podとし、追加の系列と
 Kubernetes API watchを抑える。
 
+node exporterでは、cAdvisorと重複するPodの`veth`ネットワーク系列、およびkubelet/containerdが作成する
+一時マウントのfilesystem系列をremote write前に除外する。PVCの使用量はkubeletの
+`kubelet_volume_stats_*`系列で監視する。
+
 軽量性を優先し、次の機能は収集しない。
 
 - OpenCostによるコストメトリクス

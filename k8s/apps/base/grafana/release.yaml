@@ -114,6 +114,24 @@ spec:
               replacement  = "kubernetes"
               target_label = "source"
             }
+
+            // cAdvisor already provides per-container network metrics. Drop
+            // node_exporter metrics for transient pod veth interfaces.
+            rule {
+              source_labels = ["__name__", "device"]
+              separator     = "@"
+              regex         = "node_network_.*@veth.*"
+              action        = "drop"
+            }
+
+            // PVC usage is available from kubelet_volume_stats. Exclude the
+            // transient mounts created for pods and container sandboxes.
+            rule {
+              source_labels = ["__name__", "mountpoint"]
+              separator     = "@"
+              regex         = "node_filesystem_.*@/(run/k3s/containerd|var/lib/kubelet/pods)(/.*)?"
+              action        = "drop"
+            }
           }
 
           prometheus.exporter.self "alloy" {}
