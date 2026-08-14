@@ -1,0 +1,59 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: OCIRepository
+metadata:
+  name: kubernetes-mcp-server
+  namespace: kubernetes-mcp-server
+spec:
+  interval: 24h
+  url: oci://ghcr.io/containers/charts/kubernetes-mcp-server
+  ref:
+    # Chart 0.1.0
+    digest: sha256:be79f55a60ab5fe5f52cfa480835d13f396fa84ca5058855bc9544cfa4921775
+---
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kubernetes-mcp-server
+  namespace: kubernetes-mcp-server
+spec:
+  interval: 12h
+  chartRef:
+    kind: OCIRepository
+    name: kubernetes-mcp-server
+  values:
+    fullnameOverride: kubernetes-mcp-server
+
+    image:
+      # kubernetes-mcp-server v0.0.66
+      version: sha256:6d650f4bd6ac303ad82713c997e73a2d001602f9bf17392c9b9a0e30e29c6423
+
+    ingress:
+      enabled: false
+
+    service:
+      type: ClusterIP
+
+    serviceAccount:
+      create: true
+      automountToken: true
+
+    rbac:
+      create: true
+      extraClusterRoleBindings:
+        - name: view
+          roleRef:
+            name: view
+            external: true
+
+    config:
+      port: "{{ .Values.service.port }}"
+      cluster_provider_strategy: in-cluster
+      read_only: true
+      stateless: true
+      toolsets:
+        - core
+      denied_resources:
+        - group: ""
+          version: v1
+          kind: Secret

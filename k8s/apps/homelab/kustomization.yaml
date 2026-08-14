@@ -6,6 +6,7 @@ resources:
   - ../base/adguard-home
   - ../base/invidious
   - ../base/jellyfin
+  - ../base/kubernetes-mcp-server
   - ../base/misskey
   - ../base/grafana
   - ../base/openclaw
