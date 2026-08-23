@@ -24,6 +24,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     llm-agents.url = "github:numtide/llm-agents.nix";
+    nix-openclaw = {
+      url = "github:openclaw/nix-openclaw";
+      inputs.home-manager.follows = "home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     codex-skills = {
       url = "github:openai/skills";
       flake = false;
@@ -72,6 +77,7 @@
           disko.nixosModules.disko
           home-manager.nixosModules.home-manager
           {
+            nixpkgs.overlays = [inputs.nix-openclaw.overlays.default];
             home-manager = {
               useGlobalPkgs = true;
               useUserPackages = true;

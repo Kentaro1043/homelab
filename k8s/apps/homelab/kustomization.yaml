@@ -10,6 +10,7 @@ resources:
   - ../base/misskey
   - ../base/grafana
   - ../base/openclaw
+  - ../base/openshell
   - ../base/palworld
   - ../base/yattee-server
   - ../base/vaultwarden
