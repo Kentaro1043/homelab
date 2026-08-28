@@ -150,7 +150,7 @@ spec:
               drop:
                 - ALL
         - name: grafana-cloud-mcp
-          image: docker.io/grafana/mcp-grafana:1.2.0 # {"$imagepolicy": "openclaw:grafana-cloud-mcp"}
+          image: docker.io/grafana/mcp-grafana:1.3.0 # {"$imagepolicy": "openclaw:grafana-cloud-mcp"}
           imagePullPolicy: IfNotPresent
           command:
             - /app/mcp-grafana
