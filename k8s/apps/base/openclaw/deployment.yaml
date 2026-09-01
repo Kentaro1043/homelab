@@ -80,7 +80,7 @@ spec:
               readOnly: true
       containers:
         - name: gateway
-          image: ghcr.io/openclaw/openclaw:2026.8.1 # {"$imagepolicy": "openclaw:openclaw"}
+          image: ghcr.io/openclaw/openclaw:2026.8.2 # {"$imagepolicy": "openclaw:openclaw"}
           imagePullPolicy: IfNotPresent
           command:
             - node
