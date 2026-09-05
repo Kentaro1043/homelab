@@ -21,7 +21,7 @@ spec:
     extract: "$version"
   policy:
     semver:
-      range: ">=2026.7.1 <2026.8.0"
+      range: ">=2026.9.1 <2026.9.2"
 ---
 apiVersion: image.toolkit.fluxcd.io/v1
 kind: ImageRepository

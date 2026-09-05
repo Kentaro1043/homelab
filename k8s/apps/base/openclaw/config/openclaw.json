@@ -27,13 +27,21 @@
           "alias": "gemma-4-26b"
         }
       },
-      "imageGenerationModel": {
-        "primary": "openai/gpt-image-2"
+      "modelPolicy": {
+        "allow": [
+          "openai/gpt-5.6-sol",
+          "google/gemma-4-31b-it",
+          "google/gemma-4-26b-a4b-it"
+        ]
+      },
+      "mediaModels": {
+        "image": {
+          "primary": "openai/gpt-image-2"
+        }
       }
     },
-    "list": [
-      {
-        "id": "default",
+    "entries": {
+      "default": {
         "identity": {
           "name": "OpenClaw Assistant"
         },
@@ -42,7 +50,7 @@
           "primary": "openai/gpt-5.6-sol"
         }
       }
-    ]
+    }
   },
   "cron": { "enabled": true },
   "mcp": {
@@ -85,6 +93,15 @@
         "enabled": true
       },
       "discord": {
+        "enabled": true
+      },
+      "google": {
+        "enabled": true
+      },
+      "openai": {
+        "enabled": true
+      },
+      "browser": {
         "enabled": true
       }
     }
