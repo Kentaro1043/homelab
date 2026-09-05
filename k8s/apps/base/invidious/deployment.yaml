@@ -138,7 +138,7 @@ spec:
               mountPath: /config
               readOnly: true
         - name: companion
-          image: quay.io/invidious/invidious-companion:2026.08.10-16cf10e@sha256:298cad3da121cc6ee290f00e6cc02a64feb36085097a3bba03d88eaa31d4dafd # {"$imagepolicy": "invidious:invidious-companion"}
+          image: quay.io/invidious/invidious-companion:2026.09.05-6386b18@sha256:e3e4e79490bb85e72ab233d332b4169142ed7907def7111223665c84952b0c7e # {"$imagepolicy": "invidious:invidious-companion"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: companion
