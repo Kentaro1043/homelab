@@ -31,8 +31,9 @@
         "primary": "openai/gpt-image-2"
       }
     },
-    "entries": {
-      "default": {
+    "list": [
+      {
+        "id": "default",
         "identity": {
           "name": "OpenClaw Assistant"
         },
@@ -41,7 +42,7 @@
           "primary": "openai/gpt-5.6-sol"
         }
       }
-    }
+    ]
   },
   "cron": { "enabled": true },
   "mcp": {
