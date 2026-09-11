@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - certificate.yaml
   - postgres.yaml
   - release.yaml
   - secrets/push.enc.yaml

@@ -24,7 +24,7 @@ spec:
         name: vaultwarden
         namespace: vaultwarden
   values:
-    domain: https://vw.kentaro1043.com
+    domain: https://vw.internal.kentaro1043.com
 
     resourceType: StatefulSet
     replicas: 1
@@ -39,10 +39,11 @@ spec:
 
     ingress:
       enabled: true
-      class: cloudflare-tunnel
+      class: traefik
       nginxIngressAnnotations: false
-      tls: false
-      hostname: vw.kentaro1043.com
+      tls: true
+      tlsSecret: vaultwarden-tls
+      hostname: vw.internal.kentaro1043.com
 
     database:
       type: postgresql
