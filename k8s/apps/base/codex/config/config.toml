@@ -1,0 +1,47 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+approval_policy = "on-request"
+approvals_reviewer = "auto_review"
+sandbox_mode = "danger-full-access"
+web_search = "live"
+
+[shell_environment_policy]
+exclude = ["CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION"]
+
+[mcp_servers.context7]
+command = "context7-mcp"
+default_tools_approval_mode = "auto"
+
+[mcp_servers.exa]
+url = "https://mcp.exa.ai/mcp"
+default_tools_approval_mode = "auto"
+
+[mcp_servers.grafana-cloud]
+url = "http://127.0.0.1:8000/mcp"
+default_tools_approval_mode = "writes"
+
+[mcp_servers.grafana-trap-sakura]
+url = "https://s-grafana-mcp.trap.jp/mcp"
+env_http_headers = { "Authorization" = "CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION" }
+default_tools_approval_mode = "writes"
+
+[mcp_servers.grafana-trap-conoha]
+url = "https://grafana-mcp.trap.jp/mcp"
+env_http_headers = { "Authorization" = "CODEX_MCP_GRAFANA_TRAP_AUTHORIZATION" }
+default_tools_approval_mode = "writes"
+
+[mcp_servers.serena]
+command = "serena"
+args = [
+  "start-mcp-server",
+  "--context",
+  "codex",
+  "--project-from-cwd",
+  "--enable-web-dashboard",
+  "false",
+]
+startup_timeout_sec = 30
+default_tools_approval_mode = "writes"
+
+[notice.model_migrations]
+"gpt-5.3-codex" = "gpt-5.4"

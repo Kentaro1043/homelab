@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: codex
+
+resources:
+  - namespace.yaml
+  - serviceaccount.yaml
+  - service.yaml
+  - pvc.yaml
+  - networkpolicy.yaml
+  - resourcequota.yaml
+  - statefulset.yaml
+  - secrets/ghcr-pull-secret.enc.yaml
+  - secrets/mcp-credentials.enc.yaml
+  - update.yaml
+
+configMapGenerator:
+  - name: codex-config
+    files:
+      - config/config.toml
+      - config/AGENTS.md
