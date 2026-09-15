@@ -90,7 +90,7 @@ spec:
               mountPath: /config
       containers:
         - name: invidious
-          image: quay.io/invidious/invidious:2026.08.28-b3a3f3a@sha256:b560181805140122a53e84b760829ec76b877445ba34469928b179bae66abf8b # {"$imagepolicy": "invidious:invidious"}
+          image: quay.io/invidious/invidious:2026.09.15-248c315@sha256:d929ee74296d90524a5c74cbfb04352d250755edba8f8011d91a96717560c0ef # {"$imagepolicy": "invidious:invidious"}
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
