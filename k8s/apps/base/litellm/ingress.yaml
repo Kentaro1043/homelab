@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: litellm
+  namespace: litellm
+  labels:
+    app.kubernetes.io/name: litellm
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - litellm.internal.kentaro1043.com
+      secretName: litellm-tls
+  rules:
+    - host: litellm.internal.kentaro1043.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: litellm
+                port:
+                  name: http
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: litellm
+  namespace: litellm
+spec:
+  secretName: litellm-tls
+  commonName: litellm.internal.kentaro1043.com
+  dnsNames:
+    - litellm.internal.kentaro1043.com
+  issuerRef:
+    name: homelab-ca
+    kind: ClusterIssuer
