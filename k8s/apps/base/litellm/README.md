@@ -8,13 +8,15 @@ API は Master Key または UI で発行した Virtual Key で認証する。
 | --- | --- |
 | `gemini-3.8-flash` | Google AI Studio |
 | `gemini-3.5-flash-lite` | Google AI Studio |
-| `gemma-4-31b-it` | Google AI Studio / OpenRouter |
-| `gemma-4-26b-a4b-it` | Google AI Studio / OpenRouter |
+| `gemma-4-31b-it` | OpenRouter 優先 / Google AI Studio 予備 |
+| `gemma-4-26b-a4b-it` | OpenRouter 優先 / Google AI Studio 予備 |
 
 モデル名にはバージョンを含め、異なるバージョン間の自動切り替えは行わない。
 Gemma は同じ `model_name` に Google と OpenRouter の接続先を登録する。
-`simple-shuffle` と同じ重みでリクエストごとにランダムに振り分ける（厳密な交互実行ではない）。
-`enable_weighted_failover` により再試行可能な障害時は同じバージョンの別の接続先へ切り替える。
+`order: 1` の OpenRouter を優先し、接続障害やレート制限などで再試行後も利用できない場合、
+同じバージョンの `order: 2` の Google AI Studio へフォールバックする。
+OpenRouter がクールダウン中も利用可能な Google 側を使用する。
+Gemini モデルは Google AI Studio のみを使用する。
 OpenRouter は `google/gemma-4-31b-it:free` と `google/gemma-4-26b-a4b-it:free` のみ使用する。
 無料モデルが利用できない場合も、OpenRouter の有料モデルへは切り替えない。
 Google 側は無料枠のプロジェクトの API キーを使用する。

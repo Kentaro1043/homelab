@@ -12,27 +12,26 @@ model_list:
     litellm_params:
       model: gemini/gemma-4-31b-it
       api_key: os.environ/GEMINI_API_KEY
-      weight: 1
+      order: 2
   - model_name: gemma-4-31b-it
     litellm_params:
       model: openrouter/google/gemma-4-31b-it:free
       api_key: os.environ/OPENROUTER_API_KEY
-      weight: 1
+      order: 1
 
   - model_name: gemma-4-26b-a4b-it
     litellm_params:
       model: gemini/gemma-4-26b-a4b-it
       api_key: os.environ/GEMINI_API_KEY
-      weight: 1
+      order: 2
   - model_name: gemma-4-26b-a4b-it
     litellm_params:
       model: openrouter/google/gemma-4-26b-a4b-it:free
       api_key: os.environ/OPENROUTER_API_KEY
-      weight: 1
+      order: 1
 
 router_settings:
   routing_strategy: simple-shuffle
-  enable_weighted_failover: true
   num_retries: 2
   max_fallbacks: 1
 
