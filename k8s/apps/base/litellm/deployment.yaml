@@ -7,6 +7,8 @@ metadata:
     app: litellm
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: litellm
@@ -30,11 +32,32 @@ spec:
             - 0.0.0.0
             - --port
             - "4000"
+            - --use_v2_migration_resolver
+            - --enforce_prisma_migration_check
           ports:
             - name: http
               containerPort: 4000
               protocol: TCP
           env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-postgres-app
+                  key: uri
+            - name: LITELLM_SALT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: LITELLM_SALT_KEY
+            - name: UI_USERNAME
+              value: admin
+            - name: UI_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: UI_PASSWORD
+            - name: DISABLE_ADMIN_UI
+              value: "False"
             - name: LITELLM_MASTER_KEY
               valueFrom:
                 secretKeyRef:
@@ -63,7 +86,7 @@ spec:
               port: http
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 30
+            failureThreshold: 60
           livenessProbe:
             httpGet:
               path: /health/liveliness

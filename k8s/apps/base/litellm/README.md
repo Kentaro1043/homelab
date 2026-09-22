@@ -1,8 +1,8 @@
 # LiteLLM
 
 Google AI Studio と OpenRouter を OpenAI 互換 API として公開する。
-LiteLLM v1.101.0、1 replica、DB なしの構成で、Master Key による認証を必須にする。
-Virtual Key、利用料金の永続保存、管理 UI を使う場合は PostgreSQL などの追加構成が必要。
+LiteLLM v1.101.0、1 replica と CloudNativePG の PostgreSQL を使用する。
+API は Master Key または UI で発行した Virtual Key で認証する。
 
 | クライアントから指定するモデル | 接続先 |
 | --- | --- |
@@ -46,6 +46,8 @@ API キーが未設定の Pod で既存の Flux apps の Ready 判定を妨げ�
    type: Opaque
    stringData:
      LITELLM_MASTER_KEY: REPLACE_WITH_RANDOM_SK_KEY
+     LITELLM_SALT_KEY: REPLACE_WITH_RANDOM_SALT_KEY
+     UI_PASSWORD: REPLACE_WITH_RANDOM_UI_PASSWORD
      GEMINI_API_KEY: REPLACE_WITH_GOOGLE_AI_STUDIO_API_KEY
      OPENROUTER_API_KEY: REPLACE_WITH_OPENROUTER_API_KEY
    ```
@@ -54,6 +56,10 @@ API キーが未設定の Pod で既存の Flux apps の Ready 判定を妨げ�
    API キーに、`OPENROUTER_API_KEY` を [OpenRouter](https://openrouter.ai/settings/keys) の
    API キーに置き換える。`LITELLM_MASTER_KEY` には `sk-` で始まるランダムな値を設定する。
    例えば `openssl rand -hex 32` の出力に `sk-` を付ける。
+   `LITELLM_SALT_KEY` と `UI_PASSWORD` にも、それぞれ別のランダムな値を設定する。
+   `LITELLM_SALT_KEY` は DB 内の認証情報の暗号化に使用するため、運用開始後は変更しない。
+   DB の接続情報は CloudNativePG が `litellm-postgres-app` Secret に自動生成する。
+   `DATABASE_URL` を手動で作成する必要はない。
 
 3. 既存の `.sops.yaml` の age 公開鍵で暗号化する。
 
@@ -73,6 +79,7 @@ API キーが未設定の Pod で既存の Flux apps の Ready 判定を妨げ�
 ## 接続確認
 
 ```sh
+kubectl -n litellm wait --for=condition=Ready cluster/litellm-postgres --timeout=600s
 kubectl -n litellm rollout status deployment/litellm
 kubectl -n litellm port-forward service/litellm 4000:4000
 ```
@@ -97,6 +104,37 @@ curl --fail-with-body http://localhost:4000/v1/chat/completions \
 `/v1/models` は設定の確認、`/v1/chat/completions` は実際の外部 API 呼び出しとなる。
 probe は外部 API を呼び出さない `/health/liveliness` と `/health/readiness` を使う。
 
+## 管理 UI と使用量
+
+`https://litellm.internal.kentaro1043.com/ui` を開き、ユーザー名 `admin` と
+Secret の `UI_PASSWORD` で初期ログインする。UI は LiteLLM の同じコンテナが配信する。
+
+- Virtual Keys でアプリ別のキーを発行し、クライアントの Master Key を置き換える。
+- Usage でモデル・キー別の使用量を確認する。
+- Logs で個別リクエストのトークン数、成功・失敗、応答時間を確認する。
+
+使用量・エラーログは DB に保存する。リクエストとレスポンスの本文保存は無効。
+詳細ログは30日保持し、1日ごとに古いログを削除する。
+使用量表示はこの Proxy を経由したリクエストが対象で、プロバイダ全体の無料枠残量ではない。
+費用表示は LiteLLM の見積もりであり、特に Google の Free Tier の実際の請求額とは異なる場合がある。
+モデルと無料経路の設定は引き続き `config/config.yaml` で管理する。
+
+初期ログイン後は Internal Users で個人用の `proxy_admin` アカウントを作成できる。
+そのアカウントでログインできることを確認してから、`general_settings` に
+`disable_env_credential_login: true` を追加すると、環境変数による共通ログインを無効化できる。
+
+## PostgreSQL の運用
+
+既存の CloudNativePG Operator が `litellm-postgres` を管理し、`nfs-homelab` に5Giを確保する。
+DB 名・所有ユーザーは `litellm`、接続先は `litellm-postgres-rw`。
+単一インスタンス構成で、自動バックアップはこの manifest には含めていない。
+DB の復旧に備える場合は、データに加え `LITELLM_SALT_KEY` も保管する。
+
+LiteLLM は起動時にマイグレーションを実行し、失敗時は起動を中断する。
+`Recreate` で旧 Pod を停止してから起動するため、更新時には短い停止が発生する。
+DB の初期作成中は Secret や接続先の準備を待ち、準備後に起動する。
+イメージ更新前には DB をバックアップする。
+
 ## 設定変更
 
 モデルやプロバイダは `config/config.yaml` の `model_list` に追加する。
@@ -117,3 +155,6 @@ kubectl -n litellm rollout restart deployment/litellm
 - [Google AI Studio: Gemma](https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api)
 - [LiteLLM: OpenRouter](https://docs.litellm.ai/docs/providers/openrouter)
 - [LiteLLM: Routing](https://docs.litellm.ai/docs/routing)
+- [LiteLLM: 管理 UI](https://docs.litellm.ai/docs/proxy/ui)
+- [LiteLLM: 使用量ログ](https://docs.litellm.ai/docs/proxy/ui_logs)
+- [CloudNativePG: アプリケーション接続](https://cloudnative-pg.io/docs/devel/applications/)
