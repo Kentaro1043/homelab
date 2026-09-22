@@ -67,3 +67,27 @@ Push後はFlux同期、変更したDeployment/HelmRelease/MariaDBのReady、Lite
 単一replicaのRecreateアプリやDBでは更新時に再起動・短い停止が発生する。
 CPU throttling、応答時間、ゲーム稼働中の負荷を再確認し、競合時に不足するアプリはrequestsを引き上げる。
 
+## メモリ予約の追加調整（同日）
+
+CPU変更反映後、LiteLLMとPostgreSQLは起動したが、Palworldがメモリ不足でPendingになった。
+ノードのallocatableは14,247,480Ki（約13,913.6Mi）。Palworld以外の予約9,846Miに
+Palworldの4,096Miを加えると13,942Miとなり、約28.4Mi超過していた。
+
+Grafana Cloud MCPで直近7日のworking setを再取得し、最大値に約50%以上の余裕を残して
+以下のrequestsだけを変更した。メモリlimits・CPU設定は維持する。
+
+| 対象 | P95 (Mi) | 最大 (Mi) | requests変更 (Mi) |
+| --- | ---: | ---: | ---: |
+| OpenClaw gateway | 436.7 | 498.7 | 1024 → 768 |
+| EPGStation MariaDB | 127.1 | 134.4 | 512 → 256 |
+| Wavelog MariaDB | 234.9 | 243.2 | 512 → 384 |
+| Wavelog | 54.3 | 69.9 | 256 → 128 |
+
+削減量は768Mi。全Pod復帰後の定常予約は13,174Mi、残り約739.6Miの見込み。
+Palworldはゲーム中の増加に備え4Giを維持し、すでに実測がrequestsを超えている
+KonomiTV・Misskey・oh-my-ytdlなども削減しない。
+過去7日の実測が将来の上限を保証するものではなく、requests超過時のノード圧迫・evictionにも注意する。
+OOMの履歴メトリクスは該当系列が返らなかったため、OOMがなかったことの証明には使用していない。
+
+反映後は4対象のrollout、両MariaDB、Palworld、LiteLLM、Flux appsのReadyと、
+ノードのメモリ予約量およびPendingの解消を確認する。

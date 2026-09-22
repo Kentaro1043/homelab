@@ -107,7 +107,7 @@ spec:
                 name: openclaw-secrets
           resources:
             requests:
-              memory: 1Gi
+              memory: 768Mi
               cpu: 100m
             limits:
               memory: 3Gi
