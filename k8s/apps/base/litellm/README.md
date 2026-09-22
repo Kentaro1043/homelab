@@ -1,6 +1,6 @@
 # LiteLLM
 
-Google AI Studio・OpenRouter・Groq を OpenAI 互換 API として公開する。
+Google AI Studio・OpenRouter・Groq・Ollama Cloud を OpenAI 互換 API として公開する。
 LiteLLM v1.101.0、1 replica と CloudNativePG の PostgreSQL を使用する。
 API は Master Key または UI で発行した Virtual Key で認証する。
 
@@ -8,18 +8,26 @@ API は Master Key または UI で発行した Virtual Key で認証する。
 | --- | --- |
 | `gemini-3.8-flash` | Google AI Studio |
 | `gemini-3.5-flash-lite` | Google AI Studio |
-| `gemma-4-31b-it` | OpenRouter 優先 / Google AI Studio 予備 |
+| `gemma-4-31b-it` | OpenRouter → Ollama Cloud → Google AI Studio |
 | `gemma-4-26b-a4b-it` | OpenRouter 優先 / Google AI Studio 予備 |
 | `qwen3.8-27b` | Groq 優先 / OpenRouter 無料版 予備 |
 | `glm-5.2` | OpenRouter 無料版 |
-| `gpt-oss-20b` | Groq |
-| `gpt-oss-120b` | Groq |
+| `gpt-oss-20b` | Groq → Ollama Cloud |
+| `gpt-oss-120b` | Groq → Ollama Cloud |
+| `nemotron-3-nano-30b` | Ollama Cloud |
+| `nemotron-3-super-120b-a12b` | OpenRouter → Ollama Cloud |
+| `nemotron-3-ultra-550b-a55b` | OpenRouter → Ollama Cloud |
+| `nemotron-3-nano-omni-30b-a3b-reasoning` | OpenRouter 無料版 |
+| `nemotron-3.5-lightning` | OpenRouter 無料版 |
+| `nemotron-3.5-content-safety` | OpenRouter 無料版（安全性分類） |
+| `north-mini-code` | OpenRouter 無料版（Cohere） |
 
 モデル名にはバージョンを含め、異なるバージョン間の自動切り替えは行わない。
-Gemma は同じ `model_name` に Google と OpenRouter の接続先を登録する。
-`order: 1` の OpenRouter を優先し、接続障害やレート制限などで再試行後も利用できない場合、
-同じバージョンの `order: 2` の Google AI Studio へフォールバックする。
-OpenRouter がクールダウン中も利用可能な Google 側を使用する。
+同じモデルの複数プロバイダは同じ `model_name` に登録し、`order` の小さい接続先を優先する。
+Gemma 31B は OpenRouter → Ollama Cloud → Google AI Studio、26B は OpenRouter → Google AI Studio。
+接続障害・レート制限やクールダウン時には、同じモデルの次の接続先を使用する。
+GPT-OSS は Groq → Ollama Cloud、Nemotron 3 Super / Ultra は OpenRouter → Ollama Cloud。
+Nemotron 3 Nano 30B と Nano Omni 30B は別モデルとして扱い、自動切り替えしない。
 Gemini モデルは Google AI Studio のみを使用する。
 OpenRouter の Gemma は `google/gemma-4-31b-it:free` と `google/gemma-4-26b-a4b-it:free` を使用する。
 無料モデルが利用できない場合も、OpenRouter の有料モデルへは切り替えない。
@@ -32,6 +40,13 @@ Groq の Qwen は Preview モデル。レート制限は Groq Console の Limits
 Google 側は無料枠のプロジェクトの API キーを使用する。
 LiteLLM の manifest から Google プロジェクトの課金状態は制御できないため、
 有料枠のプロジェクトのキーは設定しない。
+
+Ollama Cloud は `https://ollama.com/v1` の OpenAI 互換 API を使用し、Ollama の Pod は不要。
+無料クレジット対象の `gemma4:31b`、`gpt-oss:20b`、`gpt-oss:120b`、
+`nemotron-3-nano:30b`、`nemotron-3-super`、`nemotron-3-ultra` のみ登録する。
+Free アカウントのキーを使用し、有料クレジット購入・自動課金は有効にしない。
+無料残量は Ollama のユーザーページで確認する。manifest から課金状態は制御できない。
+OpenRouter の Nemotron / Cohere もすべて `:free` のみを使用する。
 
 接続先は `https://litellm.internal.kentaro1043.com/v1`。
 既存の内部サービスと同じ Traefik Ingress と `homelab-ca` の TLS 証明書を使用する。
@@ -63,12 +78,14 @@ Google AI Studio は外部 API のため、クラスタ内へのインストー�
      GEMINI_API_KEY: REPLACE_WITH_GOOGLE_AI_STUDIO_API_KEY
      OPENROUTER_API_KEY: REPLACE_WITH_OPENROUTER_API_KEY
      GROQ_API_KEY: REPLACE_WITH_GROQ_API_KEY
+     OLLAMA_API_KEY: REPLACE_WITH_OLLAMA_API_KEY
    ```
 
 2. 作業用ファイルの `GEMINI_API_KEY` を [Google AI Studio](https://aistudio.google.com/apikey) の
    API キーに、`OPENROUTER_API_KEY` を [OpenRouter](https://openrouter.ai/settings/keys) の
    API キーに置き換える。`LITELLM_MASTER_KEY` には `sk-` で始まるランダムな値を設定する。
    `GROQ_API_KEY` には [Groq Console](https://console.groq.com/keys) の API キーを設定する。
+   `OLLAMA_API_KEY` には [Ollama](https://ollama.com/settings/keys) の API キーを設定する。
    例えば `openssl rand -hex 32` の出力に `sk-` を付ける。
    `LITELLM_SALT_KEY` と `UI_PASSWORD` にも、それぞれ別のランダムな値を設定する。
    `LITELLM_SALT_KEY` は DB 内の認証情報の暗号化に使用するため、運用開始後は変更しない。
@@ -173,3 +190,7 @@ kubectl -n litellm rollout restart deployment/litellm
 - [LiteLLM: 管理 UI](https://docs.litellm.ai/docs/proxy/ui)
 - [LiteLLM: 使用量ログ](https://docs.litellm.ai/docs/proxy/ui_logs)
 - [CloudNativePG: アプリケーション接続](https://cloudnative-pg.io/docs/devel/applications/)
+
+- [Ollama Cloud: OpenAI 互換 API](https://docs.ollama.com/api/openai-compatibility)
+- [Ollama: 料金・無料枠](https://ollama.com/pricing)
+- [OpenRouter: モデル一覧 API](https://openrouter.ai/api/v1/models)

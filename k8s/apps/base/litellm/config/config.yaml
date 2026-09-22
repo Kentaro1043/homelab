@@ -12,7 +12,7 @@ model_list:
     litellm_params:
       model: gemini/gemma-4-31b-it
       api_key: os.environ/GEMINI_API_KEY
-      order: 2
+      order: 3
   - model_name: gemma-4-31b-it
     litellm_params:
       model: openrouter/google/gemma-4-31b-it:free
@@ -50,10 +50,85 @@ model_list:
     litellm_params:
       model: groq/openai/gpt-oss-20b
       api_key: os.environ/GROQ_API_KEY
+      order: 1
   - model_name: gpt-oss-120b
     litellm_params:
       model: groq/openai/gpt-oss-120b
       api_key: os.environ/GROQ_API_KEY
+      order: 1
+
+  - model_name: gemma-4-31b-it
+    litellm_params:
+      model: openai/gemma4:31b
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+      order: 2
+
+  - model_name: gpt-oss-20b
+    litellm_params:
+      model: openai/gpt-oss:20b
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+      order: 2
+
+  - model_name: gpt-oss-120b
+    litellm_params:
+      model: openai/gpt-oss:120b
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+      order: 2
+
+  - model_name: nemotron-3-nano-30b
+    litellm_params:
+      model: openai/nemotron-3-nano:30b
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+
+  - model_name: nemotron-3-super-120b-a12b
+    litellm_params:
+      model: openai/nemotron-3-super
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+      order: 2
+
+  - model_name: nemotron-3-ultra-550b-a55b
+    litellm_params:
+      model: openai/nemotron-3-ultra
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+      order: 2
+
+  - model_name: nemotron-3.5-lightning
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3.5-lightning:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: nemotron-3.5-content-safety
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3.5-content-safety:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: nemotron-3-ultra-550b-a55b
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      order: 1
+
+  - model_name: nemotron-3-nano-omni-30b-a3b-reasoning
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: nemotron-3-super-120b-a12b
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-super-120b-a12b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      order: 1
+
+  - model_name: north-mini-code
+    litellm_params:
+      model: openrouter/cohere/north-mini-code:free
+      api_key: os.environ/OPENROUTER_API_KEY
 
 router_settings:
   routing_strategy: simple-shuffle
