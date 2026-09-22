@@ -45,6 +45,11 @@ spec:
                 secretKeyRef:
                   name: litellm-secrets
                   key: GEMINI_API_KEY
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: OPENROUTER_API_KEY
           resources:
             requests:
               cpu: 100m
