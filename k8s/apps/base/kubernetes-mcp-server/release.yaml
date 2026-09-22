@@ -24,6 +24,14 @@ spec:
   values:
     fullnameOverride: kubernetes-mcp-server
 
+    resources:
+      requests:
+        cpu: 10m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
     image:
       # kubernetes-mcp-server v0.0.66
       version: sha256:6d650f4bd6ac303ad82713c997e73a2d001602f9bf17392c9b9a0e30e29c6423
