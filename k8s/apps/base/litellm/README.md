@@ -1,6 +1,6 @@
 # LiteLLM
 
-Google AI Studio と OpenRouter を OpenAI 互換 API として公開する。
+Google AI Studio・OpenRouter・Groq を OpenAI 互換 API として公開する。
 LiteLLM v1.101.0、1 replica と CloudNativePG の PostgreSQL を使用する。
 API は Master Key または UI で発行した Virtual Key で認証する。
 
@@ -10,6 +10,10 @@ API は Master Key または UI で発行した Virtual Key で認証する。
 | `gemini-3.5-flash-lite` | Google AI Studio |
 | `gemma-4-31b-it` | OpenRouter 優先 / Google AI Studio 予備 |
 | `gemma-4-26b-a4b-it` | OpenRouter 優先 / Google AI Studio 予備 |
+| `qwen3.8-27b` | Groq 優先 / OpenRouter 無料版 予備 |
+| `glm-5.2` | OpenRouter 無料版 |
+| `gpt-oss-20b` | Groq |
+| `gpt-oss-120b` | Groq |
 
 モデル名にはバージョンを含め、異なるバージョン間の自動切り替えは行わない。
 Gemma は同じ `model_name` に Google と OpenRouter の接続先を登録する。
@@ -17,8 +21,14 @@ Gemma は同じ `model_name` に Google と OpenRouter の接続先を登録す�
 同じバージョンの `order: 2` の Google AI Studio へフォールバックする。
 OpenRouter がクールダウン中も利用可能な Google 側を使用する。
 Gemini モデルは Google AI Studio のみを使用する。
-OpenRouter は `google/gemma-4-31b-it:free` と `google/gemma-4-26b-a4b-it:free` のみ使用する。
+OpenRouter の Gemma は `google/gemma-4-31b-it:free` と `google/gemma-4-26b-a4b-it:free` を使用する。
 無料モデルが利用できない場合も、OpenRouter の有料モデルへは切り替えない。
+Qwen3.8 27B は Groq を優先し、利用できない場合は同じバージョンの
+`openrouter/qwen/qwen3.8-27b:free` に切り替える。
+GLM は `openrouter/z-ai/glm-5.2:free` を使用する。
+Groq は Free Plan の API キーを使用する。Groq には `:free` のモデルIDはなく、
+無料利用はアカウントのプランに依存するため、manifest では課金状態を制御できない。
+Groq の Qwen は Preview モデル。レート制限は Groq Console の Limits で確認する。
 Google 側は無料枠のプロジェクトの API キーを使用する。
 LiteLLM の manifest から Google プロジェクトの課金状態は制御できないため、
 有料枠のプロジェクトのキーは設定しない。
@@ -31,8 +41,8 @@ Google AI Studio は外部 API のため、クラスタ内へのインストー�
 
 ## Secret の準備と Flux への追加
 
-API キーが未設定の Pod で既存の Flux apps の Ready 判定を妨げないよう、
-初期状態では `k8s/apps/homelab/kustomization.yaml` に登録していない。
+現在は Flux apps に登録済み。キーを追加した場合は暗号化 Secret と Deployment の参照を
+同じコミットで更新する。新しいキーが未設定のまま Push しない。
 以下はリポジトリのルートで実行する。
 
 1. 作業用ファイル `k8s/apps/base/litellm/secrets/litellm-secrets.yaml` を編集する。
@@ -52,11 +62,13 @@ API キーが未設定の Pod で既存の Flux apps の Ready 判定を妨げ�
      UI_PASSWORD: REPLACE_WITH_RANDOM_UI_PASSWORD
      GEMINI_API_KEY: REPLACE_WITH_GOOGLE_AI_STUDIO_API_KEY
      OPENROUTER_API_KEY: REPLACE_WITH_OPENROUTER_API_KEY
+     GROQ_API_KEY: REPLACE_WITH_GROQ_API_KEY
    ```
 
 2. 作業用ファイルの `GEMINI_API_KEY` を [Google AI Studio](https://aistudio.google.com/apikey) の
    API キーに、`OPENROUTER_API_KEY` を [OpenRouter](https://openrouter.ai/settings/keys) の
    API キーに置き換える。`LITELLM_MASTER_KEY` には `sk-` で始まるランダムな値を設定する。
+   `GROQ_API_KEY` には [Groq Console](https://console.groq.com/keys) の API キーを設定する。
    例えば `openssl rand -hex 32` の出力に `sk-` を付ける。
    `LITELLM_SALT_KEY` と `UI_PASSWORD` にも、それぞれ別のランダムな値を設定する。
    `LITELLM_SALT_KEY` は DB 内の認証情報の暗号化に使用するため、運用開始後は変更しない。
@@ -69,10 +81,8 @@ API キーが未設定の Pod で既存の Flux apps の Ready 判定を妨げ�
    sops --encrypt k8s/apps/base/litellm/secrets/litellm-secrets.yaml > k8s/apps/base/litellm/secrets/litellm-secrets.enc.yaml
    ```
 
-4. `k8s/apps/base/litellm/kustomization.yaml` の `resources` に
-   `secrets/litellm-secrets.enc.yaml` を追加する。
-   `k8s/apps/homelab/kustomization.yaml` の `resources` に `../base/litellm` を追加する。
-   両方の変更と暗号化 Secret を同じコミットに含める。
+4. 暗号化 Secret と設定の変更を同じコミットに含める。
+   `secrets/litellm-secrets.enc.yaml` と `../base/litellm` は既に Kustomization に登録済み。
 
 5. `kubectl kustomize k8s/apps/homelab` で生成を確認してから反映する。
    既存の Flux apps が SOPS Secret を復号する。
@@ -157,6 +167,9 @@ kubectl -n litellm rollout restart deployment/litellm
 - [Google AI Studio: Gemma](https://ai.google.dev/gemma/docs/core/gemma_on_gemini_api)
 - [LiteLLM: OpenRouter](https://docs.litellm.ai/docs/providers/openrouter)
 - [LiteLLM: Routing](https://docs.litellm.ai/docs/routing)
+- [LiteLLM: Groq](https://docs.litellm.ai/docs/providers/groq)
+- [Groq: モデル一覧](https://console.groq.com/docs/models)
+- [Groq: Free Plan のレート制限](https://console.groq.com/docs/rate-limits)
 - [LiteLLM: 管理 UI](https://docs.litellm.ai/docs/proxy/ui)
 - [LiteLLM: 使用量ログ](https://docs.litellm.ai/docs/proxy/ui_logs)
 - [CloudNativePG: アプリケーション接続](https://cloudnative-pg.io/docs/devel/applications/)
