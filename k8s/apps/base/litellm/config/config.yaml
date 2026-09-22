@@ -126,6 +126,12 @@ model_list:
     litellm_params:
       model: openrouter/cohere/north-mini-code:free
       api_key: os.environ/OPENROUTER_API_KEY
+      order: 1
+  - model_name: north-mini-code
+    litellm_params:
+      model: cohere_chat/north-mini-code-1-0
+      api_key: os.environ/COHERE_API_KEY
+      order: 2
 
 router_settings:
   routing_strategy: simple-shuffle

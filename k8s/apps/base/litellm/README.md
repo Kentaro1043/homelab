@@ -1,6 +1,6 @@
 # LiteLLM
 
-Google AI Studio・OpenRouter・Groq・Ollama Cloud を OpenAI 互換 API として公開する。
+Google AI Studio・OpenRouter・Groq・Ollama Cloud・Cohere を OpenAI 互換 API として公開する。
 LiteLLM v1.101.0、1 replica と CloudNativePG の PostgreSQL を使用する。
 API は Master Key または UI で発行した Virtual Key で認証する。
 
@@ -20,13 +20,18 @@ API は Master Key または UI で発行した Virtual Key で認証する。
 | `nemotron-3-nano-omni-30b-a3b-reasoning` | OpenRouter 無料版 |
 | `nemotron-3.5-lightning` | OpenRouter 無料版 |
 | `nemotron-3.5-content-safety` | OpenRouter 無料版（安全性分類） |
-| `north-mini-code` | OpenRouter 無料版（Cohere） |
+| `north-mini-code` | OpenRouter 無料版 → Cohere 直接接続 |
 
 モデル名にはバージョンを含め、異なるバージョン間の自動切り替えは行わない。
 同じモデルの複数プロバイダは同じ `model_name` に登録し、`order` の小さい接続先を優先する。
 Gemma 31B は OpenRouter → Ollama Cloud → Google AI Studio、26B は OpenRouter → Google AI Studio。
 接続障害・レート制限やクールダウン時には、同じモデルの次の接続先を使用する。
 GPT-OSS は Groq → Ollama Cloud、Nemotron 3 Super / Ultra は OpenRouter → Ollama Cloud。
+North Mini Code は OpenRouter → Cohere の順に使用し、接続先を同じ場所にまとめる。
+Cohere のモデルIDは `north-mini-code-1-0`（1.0）を明示する。
+既存クライアント向けの公開名 `north-mini-code` は継続して使用する。
+Cohere は Trial API キーを使用する。North Mini Code は Trial / Production のどちらも
+レート制限までは無料だが、他の Cohere モデルには自動切り替えしない。
 Nemotron 3 Nano 30B と Nano Omni 30B は別モデルとして扱い、自動切り替えしない。
 Gemini モデルは Google AI Studio のみを使用する。
 OpenRouter の Gemma は `google/gemma-4-31b-it:free` と `google/gemma-4-26b-a4b-it:free` を使用する。
@@ -79,6 +84,7 @@ Google AI Studio は外部 API のため、クラスタ内へのインストー�
      OPENROUTER_API_KEY: REPLACE_WITH_OPENROUTER_API_KEY
      GROQ_API_KEY: REPLACE_WITH_GROQ_API_KEY
      OLLAMA_API_KEY: REPLACE_WITH_OLLAMA_API_KEY
+     COHERE_API_KEY: REPLACE_WITH_COHERE_API_KEY
    ```
 
 2. 作業用ファイルの `GEMINI_API_KEY` を [Google AI Studio](https://aistudio.google.com/apikey) の
@@ -86,6 +92,7 @@ Google AI Studio は外部 API のため、クラスタ内へのインストー�
    API キーに置き換える。`LITELLM_MASTER_KEY` には `sk-` で始まるランダムな値を設定する。
    `GROQ_API_KEY` には [Groq Console](https://console.groq.com/keys) の API キーを設定する。
    `OLLAMA_API_KEY` には [Ollama](https://ollama.com/settings/keys) の API キーを設定する。
+   `COHERE_API_KEY` には [Cohere](https://dashboard.cohere.com/api-keys) の Trial API キーを設定する。
    例えば `openssl rand -hex 32` の出力に `sk-` を付ける。
    `LITELLM_SALT_KEY` と `UI_PASSWORD` にも、それぞれ別のランダムな値を設定する。
    `LITELLM_SALT_KEY` は DB 内の認証情報の暗号化に使用するため、運用開始後は変更しない。
@@ -194,3 +201,7 @@ kubectl -n litellm rollout restart deployment/litellm
 - [Ollama Cloud: OpenAI 互換 API](https://docs.ollama.com/api/openai-compatibility)
 - [Ollama: 料金・無料枠](https://ollama.com/pricing)
 - [OpenRouter: モデル一覧 API](https://openrouter.ai/api/v1/models)
+
+- [LiteLLM: Cohere](https://docs.litellm.ai/docs/providers/cohere)
+- [Cohere: North Mini Code 1.0](https://docs.cohere.com/docs/north-mini-code-1.0)
+- [Cohere: レート制限](https://docs.cohere.com/docs/rate-limits)

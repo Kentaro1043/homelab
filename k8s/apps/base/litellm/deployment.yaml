@@ -83,6 +83,11 @@ spec:
                 secretKeyRef:
                   name: litellm-secrets
                   key: OLLAMA_API_KEY
+            - name: COHERE_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: litellm-secrets
+                  key: COHERE_API_KEY
           resources:
             requests:
               cpu: 100m
