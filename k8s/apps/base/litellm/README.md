@@ -14,12 +14,9 @@ API は Master Key または UI で発行した Virtual Key で認証する。
 | `glm-5.2` | OpenRouter 無料版 |
 | `gpt-oss-20b` | Groq → Ollama Cloud |
 | `gpt-oss-120b` | Groq → Ollama Cloud |
-| `nemotron-3-nano-30b` | Ollama Cloud |
 | `nemotron-3-super-120b-a12b` | OpenRouter → Ollama Cloud |
 | `nemotron-3-ultra-550b-a55b` | OpenRouter → Ollama Cloud |
-| `nemotron-3-nano-omni-30b-a3b-reasoning` | OpenRouter 無料版 |
 | `nemotron-3.5-lightning` | OpenRouter 無料版 |
-| `nemotron-3.5-content-safety` | OpenRouter 無料版（安全性分類） |
 | `north-mini-code` | OpenRouter 無料版 → Cohere 直接接続 |
 
 モデル名にはバージョンを含め、異なるバージョン間の自動切り替えは行わない。
@@ -32,7 +29,6 @@ Cohere のモデルIDは `north-mini-code-1-0`（1.0）を明示する。
 既存クライアント向けの公開名 `north-mini-code` は継続して使用する。
 Cohere は Trial API キーを使用する。North Mini Code は Trial / Production のどちらも
 レート制限までは無料だが、他の Cohere モデルには自動切り替えしない。
-Nemotron 3 Nano 30B と Nano Omni 30B は別モデルとして扱い、自動切り替えしない。
 Gemini モデルは Google AI Studio のみを使用する。
 OpenRouter の Gemma は `google/gemma-4-31b-it:free` と `google/gemma-4-26b-a4b-it:free` を使用する。
 無料モデルが利用できない場合も、OpenRouter の有料モデルへは切り替えない。
@@ -48,7 +44,7 @@ LiteLLM の manifest から Google プロジェクトの課金状態は制御で
 
 Ollama Cloud は `https://ollama.com/v1` の OpenAI 互換 API を使用し、Ollama の Pod は不要。
 無料クレジット対象の `gemma4:31b`、`gpt-oss:20b`、`gpt-oss:120b`、
-`nemotron-3-nano:30b`、`nemotron-3-super`、`nemotron-3-ultra` のみ登録する。
+`nemotron-3-super`、`nemotron-3-ultra` のみ登録する。
 Free アカウントのキーを使用し、有料クレジット購入・自動課金は有効にしない。
 無料残量は Ollama のユーザーページで確認する。manifest から課金状態は制御できない。
 OpenRouter の Nemotron / Cohere もすべて `:free` のみを使用する。

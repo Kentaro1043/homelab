@@ -77,12 +77,6 @@ model_list:
       api_key: os.environ/OLLAMA_API_KEY
       order: 2
 
-  - model_name: nemotron-3-nano-30b
-    litellm_params:
-      model: openai/nemotron-3-nano:30b
-      api_base: https://ollama.com/v1
-      api_key: os.environ/OLLAMA_API_KEY
-
   - model_name: nemotron-3-super-120b-a12b
     litellm_params:
       model: openrouter/nvidia/nemotron-3-super-120b-a12b:free
@@ -110,16 +104,6 @@ model_list:
   - model_name: nemotron-3.5-lightning
     litellm_params:
       model: openrouter/nvidia/nemotron-3.5-lightning:free
-      api_key: os.environ/OPENROUTER_API_KEY
-
-  - model_name: nemotron-3.5-content-safety
-    litellm_params:
-      model: openrouter/nvidia/nemotron-3.5-content-safety:free
-      api_key: os.environ/OPENROUTER_API_KEY
-
-  - model_name: nemotron-3-nano-omni-30b-a3b-reasoning
-    litellm_params:
-      model: openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
       api_key: os.environ/OPENROUTER_API_KEY
 
   - model_name: north-mini-code
