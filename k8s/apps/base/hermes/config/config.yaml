@@ -1,0 +1,6 @@
+model:
+  provider: gemini
+  default: gemini-2.5-flash
+terminal:
+  backend: local
+  cwd: /opt/data/workspace
