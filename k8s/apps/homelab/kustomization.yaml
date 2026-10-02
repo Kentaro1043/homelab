@@ -9,6 +9,7 @@ resources:
   - ../base/kubernetes-mcp-server
   - ../base/misskey
   - ../base/grafana
+  - ../base/hermes
   - ../base/openclaw
   - ../base/palworld
   - ../base/yattee-server
