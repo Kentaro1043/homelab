@@ -10,6 +10,7 @@ resources:
   - ../base/litellm
   - ../base/misskey
   - ../base/grafana
+  - ../base/hermes
   - ../base/openclaw
   - ../base/palworld
   - ../base/yattee-server
