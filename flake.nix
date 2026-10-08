@@ -55,8 +55,11 @@
     in {
       default = pkgs.mkShell {
         packages = [
+          pkgs.age
           pkgs.fluxcd
+          pkgs.kubectl
           pkgs.nixd
+          pkgs.sops
           deploy-rs.packages.${system}.deploy-rs
         ];
       };
